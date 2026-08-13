@@ -27,6 +27,10 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
     isDestructive: false
   })
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  
+  const contactosList = punto.contacto
+    ? punto.contacto.split(/[,-]|\sy\s/i).map(c => c.trim()).filter(Boolean)
+    : [];
 
   const prevFoto = () => setFotoIdx((i) => (i - 1 + fotos.length) % fotos.length)
   const nextFoto = () => setFotoIdx((i) => (i + 1) % fotos.length)
@@ -206,15 +210,27 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
             </a>
           )}
 
-          {/* Contacto (Teléfono) */}
-          {punto.contacto && (
-            <a
-              href={`tel:${punto.contacto.replace(/[^0-9+]/g, '')}`}
-              className="flex items-center gap-1.5 bg-white text-emerald-700 border border-gray-200 shadow-sm px-4 py-2 rounded-lg text-sm font-semibold transition-colors hover:bg-gray-50"
-            >
-              <span className="text-emerald-600">📞</span> {punto.contacto}
-            </a>
-          )}
+          {/* Contacto (Teléfono o Texto) */}
+          {contactosList.map((contacto, idx) => {
+            const isPhone = contacto.replace(/\D/g, '').length >= 7;
+            return isPhone ? (
+              <a
+                key={idx}
+                href={`tel:${contacto.replace(/[^0-9+]/g, '')}`}
+                className="flex items-center gap-1.5 bg-white text-emerald-700 border border-gray-200 shadow-sm px-4 py-2 rounded-lg text-sm font-semibold transition-colors hover:bg-gray-50"
+              >
+                <span className="text-emerald-600">📞</span> {contacto}
+              </a>
+            ) : (
+              <div
+                key={idx}
+                className="flex items-center gap-1.5 bg-gray-50 text-gray-700 border border-gray-200 shadow-sm px-4 py-2 rounded-lg text-sm font-semibold max-w-[250px] sm:max-w-xs"
+              >
+                <span className="text-gray-500 shrink-0">📞</span> 
+                <span className="truncate" title={contacto}>{contacto}</span>
+              </div>
+            );
+          })}
 
           {/* Link Inscripción o WhatsApp */}
           {punto.link_inscripcion && (
