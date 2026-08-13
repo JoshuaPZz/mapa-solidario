@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   description:
     'Mapa colaborativo en tiempo real para coordinar voluntariado y donaciones tras el terremoto de Colombia (agosto 2026). Agrega puntos de acopio, voluntariado y donaciones sin necesidad de crear cuenta.',
   keywords: ['terremoto Colombia', 'voluntariado', 'donaciones', 'emergencia', 'Bogotá', 'ayuda', 'mapa solidario'],
+  icons: {
+    icon: '/sos-logo.png',
+    apple: '/sos-logo.png',
+  },
   openGraph: {
     title: 'Mapa Solidario — Emergencia Colombia 2026',
     description: 'Coordina voluntariado y donaciones en tiempo real. Sin registro.',
