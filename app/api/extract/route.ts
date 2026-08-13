@@ -72,7 +72,7 @@ export async function GET() {
     if (newNotas !== prevNotas) changed = true;
 
     if (changed) {
-      await supabase.from('puntos_ayuda').update({
+      await (supabase.from('puntos_ayuda') as any).update({
         contacto: newContacto || null,
         instagram: newInstagram || null,
         que_recibe: newQueRecibe || null,
