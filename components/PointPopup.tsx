@@ -160,7 +160,7 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
             <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">
               📋 Descripción adicional
             </p>
-            <p className="text-gray-800 text-sm leading-relaxed">{punto.que_recibe}</p>
+            <p className="text-gray-800 text-sm leading-relaxed break-words whitespace-pre-wrap">{punto.que_recibe}</p>
           </div>
         )}
 
@@ -170,7 +170,7 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
             <span className="text-lg shrink-0">🕐</span>
             <div>
               <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Horario</p>
-              <p className="text-gray-800 text-sm">{punto.horario}</p>
+              <p className="text-gray-800 text-sm break-words whitespace-pre-wrap">{punto.horario}</p>
             </div>
           </div>
         )}
@@ -178,7 +178,7 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
         {/* Notas */}
         {punto.notas && (
           <div className="bg-orange-50 border border-orange-100 rounded-xl p-3">
-            <p className="text-orange-800 text-sm leading-relaxed">
+            <p className="text-orange-800 text-sm leading-relaxed break-words whitespace-pre-wrap">
               <span className="font-semibold">ℹ️ </span>{punto.notas}
             </p>
           </div>
@@ -200,7 +200,7 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
                 Inscríbete aquí →
               </a>
             ) : (
-              <p className="text-blue-800 text-sm">{punto.link_inscripcion}</p>
+              <p className="text-blue-800 text-sm break-words whitespace-pre-wrap">{punto.link_inscripcion}</p>
             )}
           </div>
         )}
@@ -211,7 +211,7 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
             <span className="text-lg shrink-0">📞</span>
             <div>
               <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Contacto</p>
-              <p className="text-gray-800 text-sm">{punto.contacto}</p>
+              <p className="text-gray-800 text-sm break-words whitespace-pre-wrap">{punto.contacto}</p>
             </div>
           </div>
         )}

@@ -97,7 +97,7 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
         {punto.que_recibe && (
           <div>
             <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">¿Qué necesita?</p>
-            <p className="text-sm text-gray-800">{punto.que_recibe}</p>
+            <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">{punto.que_recibe}</p>
           </div>
         )}
         
@@ -105,13 +105,13 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
           {punto.horario && (
             <div>
               <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Horario</p>
-              <p className="text-sm text-gray-800">{punto.horario}</p>
+              <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">{punto.horario}</p>
             </div>
           )}
           {punto.contacto && (
             <div>
               <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Contacto</p>
-              <p className="text-sm text-gray-800">{punto.contacto}</p>
+              <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">{punto.contacto}</p>
             </div>
           )}
         </div>
@@ -119,7 +119,7 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
         {punto.notas && (
           <div>
             <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Notas</p>
-            <p className="text-sm text-gray-600">{punto.notas}</p>
+            <p className="text-sm text-gray-600 break-words whitespace-pre-wrap">{punto.notas}</p>
           </div>
         )}
 
