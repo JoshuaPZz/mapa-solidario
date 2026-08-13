@@ -7,8 +7,10 @@ import { fotoUrl } from '@/lib/supabase'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import ConfirmModal from './ConfirmModal'
-import ExpandableText from './ExpandableText'
 import ContactDropdown from './ContactDropdown'
+
+const QUE_RECIBE_THRESHOLD = 140
+const NOTAS_THRESHOLD = 100
 
 interface PointCardProps {
   punto: PuntoAyuda
@@ -19,13 +21,16 @@ interface PointCardProps {
 
 export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditPunto }: PointCardProps) {
   const isCubierto = punto.estado === 'cubierto'
-  
   const [confirmConfig, setConfirmConfig] = useState<{ isOpen: boolean, msg: string, action: (() => void) | null, isDestructive: boolean }>({
     isOpen: false,
     msg: '',
     action: null,
     isDestructive: false
   })
+  const [expandedQueRecibe, setExpandedQueRecibe] = useState(false)
+  const [expandedNotas, setExpandedNotas] = useState(false)
+  const queRecibeLong = (punto.que_recibe?.length ?? 0) > QUE_RECIBE_THRESHOLD
+  const notasLong = (punto.notas?.length ?? 0) > NOTAS_THRESHOLD
 
   return (
     <div className={`relative flex flex-col bg-white border rounded-xl p-5 shadow-sm transition-all duration-300 hover:shadow-md ${isCubierto ? 'border-green-200 bg-green-50/30' : 'border-gray-200 hover:border-red-200'}`}>
@@ -105,32 +110,60 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
 
       {/* Details Box */}
       <div className="bg-gray-50 rounded-xl p-4 mb-5 space-y-3 border border-gray-200/60">
-        {punto.que_recibe && (
+
+        {/* Qué necesita */}
+        {punto.que_recibe ? (
           <div>
-            <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">¿Qué necesita?</p>
-            <ExpandableText text={punto.que_recibe} maxLength={180} className="text-sm text-gray-800" />
+            <p className="text-xs font-medium text-gray-500 mb-1">¿Qué necesita?</p>
+            <p className={`text-sm text-gray-800 break-words ${!expandedQueRecibe && queRecibeLong ? 'line-clamp-3' : ''}`}>
+              {punto.que_recibe}
+            </p>
+            {queRecibeLong && (
+              <button
+                onClick={() => setExpandedQueRecibe((v) => !v)}
+                className="text-xs text-red-600 hover:text-red-800 font-medium mt-1 transition-colors"
+              >
+                {expandedQueRecibe ? 'Ver menos ↑' : 'Ver más ↓'}
+              </button>
+            )}
+          </div>
+        ) : (
+          <div>
+            <p className="text-xs font-medium text-gray-400 mb-0.5">¿Qué necesita?</p>
+            <p className="text-xs text-gray-300 italic">
+              Aún no hay información. Si conoces este punto, ayuda a completarla editándolo.
+            </p>
           </div>
         )}
-        
-        <div className="grid grid-cols-2 gap-4">
-          {punto.horario && (
-            <div>
-              <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Horario</p>
-              <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">{punto.horario}</p>
-            </div>
-          )}
-        </div>
 
+        {/* Horario */}
+        {punto.horario && (
+          <div>
+            <p className="text-xs font-medium text-gray-500 mb-1">Horario</p>
+            <p className="text-sm text-gray-800">{punto.horario}</p>
+          </div>
+        )}
+
+        {/* Notas */}
         {punto.notas && (
           <div>
-            <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Notas</p>
-            <ExpandableText text={punto.notas} maxLength={180} className="text-sm text-gray-600" />
+            <p className="text-xs font-medium text-gray-500 mb-1">Notas</p>
+            <p className={`text-sm text-gray-600 break-words ${!expandedNotas && notasLong ? 'line-clamp-2' : ''}`}>
+              {punto.notas}
+            </p>
+            {notasLong && (
+              <button
+                onClick={() => setExpandedNotas((v) => !v)}
+                className="text-xs text-red-600 hover:text-red-800 font-medium mt-1 transition-colors"
+              >
+                {expandedNotas ? 'Ver menos ↑' : 'Ver más ↓'}
+              </button>
+            )}
           </div>
         )}
 
-        {/* Enlaces / Botones de acción */}
-        <div className="flex flex-wrap gap-2 pt-2">
-          {/* Cómo llegar */}
+        {/* Botones de acción */}
+        <div className="flex flex-wrap gap-2 pt-1">
           <a
             href={punto.lat && punto.lng ? `https://www.google.com/maps?q=${punto.lat},${punto.lng}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([punto.direccion, punto.ciudad, punto.pais].filter(Boolean).join(', '))}`}
             target="_blank"
@@ -139,14 +172,13 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
           >
             <span>📍</span> Cómo llegar
           </a>
-          
-          {/* Instagram */}
+
           {punto.instagram && (
             <a
               href={punto.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 bg-[#0A2351] text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#113377]"
+              className="flex items-center gap-1.5 bg-white text-gray-700 border border-gray-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors hover:bg-gray-50 hover:border-gray-300"
             >
               <span>📷</span> Instagram
             </a>
@@ -155,20 +187,19 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
           {/* Contacto (Teléfono o Texto) */}
           {punto.contacto && <ContactDropdown contacto={punto.contacto} />}
 
-          {/* Link Inscripción o WhatsApp */}
           {punto.link_inscripcion && (
             <a
               href={punto.link_inscripcion.startsWith('http') ? punto.link_inscripcion : '#'}
               target={punto.link_inscripcion.startsWith('http') ? '_blank' : undefined}
               rel="noopener noreferrer"
-              className={`flex items-center gap-1.5 border shadow-sm px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+              className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
                 punto.link_inscripcion.includes('whatsapp') || punto.link_inscripcion.includes('wa.me')
                   ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
                   : 'bg-white text-blue-700 border-gray-200 hover:bg-gray-50'
               }`}
             >
-              <span>{punto.link_inscripcion.includes('whatsapp') || punto.link_inscripcion.includes('wa.me') ? '💬' : '📝'}</span> 
-              {punto.link_inscripcion.includes('whatsapp') || punto.link_inscripcion.includes('wa.me') 
+              <span>{punto.link_inscripcion.includes('whatsapp') || punto.link_inscripcion.includes('wa.me') ? '💬' : '📝'}</span>
+              {punto.link_inscripcion.includes('whatsapp') || punto.link_inscripcion.includes('wa.me')
                 ? 'WhatsApp'
                 : (punto.link_inscripcion.startsWith('http') ? 'Inscripción' : punto.link_inscripcion)}
             </a>

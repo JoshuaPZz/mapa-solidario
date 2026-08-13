@@ -36,8 +36,8 @@ export default function WelcomeScreen() {
             Mapa Solidario Colombia
           </h1>
           <p className="text-red-100 text-sm mt-2 leading-relaxed">
-            Un lugar para coordinar ayuda después del terremoto del Chocó. Lo construimos para que nadie quede
-            sin saber dónde puede ayudar, ni dónde puede pedirla.
+            Un lugar para coordinar ayuda después del terremoto que afectó a nuestro país. Lo construimos para que nadie quede
+            sin saber dónde puede dar ayuda, ni dónde puede pedirla.
           </p>
         </div>
         <button
@@ -195,7 +195,7 @@ export default function WelcomeScreen() {
                     <p className="text-gray-900 text-sm font-medium group-hover:text-red-700 transition-colors">
                       joaneorduzzz@gmail.com
                     </p>
-                    <p className="text-gray-400 text-xs">Joane Orduz</p>
+                    <p className="text-gray-400 text-xs">Joan Orduz</p>
                   </div>
                 </a>
               </div>
@@ -210,7 +210,7 @@ export default function WelcomeScreen() {
             <div className="border-t border-gray-100 pt-4">
               <p className="text-gray-400 text-xs leading-relaxed">
                 Mapa Solidario es un proyecto voluntario, sin fines de lucro,
-                construido para ayudar en la emergencia del Chocó.
+                construido para ayudar en la emergencia que está atravesando nuestro país.
               </p>
             </div>
 

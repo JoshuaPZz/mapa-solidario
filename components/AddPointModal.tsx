@@ -621,9 +621,10 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
               <input
                 id="f-contacto" type="text" value={form.contacto} maxLength={200}
                 onChange={(e) => set('contacto', e.target.value)}
-                placeholder="ej: 300 123 4567"
+                placeholder="ej: 300 123 4567 | 311 987 6543"
                 className="w-full bg-white text-gray-900 rounded-lg px-4 py-2.5 border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-400 text-sm transition-colors shadow-sm"
               />
+              <p className="text-gray-400 text-xs mt-1">Para varios números, sepáralos con <code className="bg-gray-100 px-1 rounded">|</code> o coma</p>
             </div>
             
             <div>

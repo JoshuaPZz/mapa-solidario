@@ -1,7 +1,7 @@
 'use client'
 
 import type { FiltrosMapa } from '@/lib/types'
-import { RADIOS, TIPOS_APOYO, TIPO_ICONS } from '@/lib/types'
+import { RADIOS, TIPOS_APOYO } from '@/lib/types'
 
 interface FilterBarProps {
   filtros: FiltrosMapa
@@ -51,114 +51,105 @@ export default function FilterBar({
         </div>
       </div>
 
-      {/* Main Bar */}
-      <div className="px-4 py-3 flex flex-col sm:flex-row items-center gap-4">
-        
-        {/* Toggle Vista (Lista/Mapa) y Agregar */}
-        <div className="w-full sm:w-auto flex items-center justify-between gap-4">
-          <div className="flex bg-gray-100 rounded-lg p-1 border border-gray-200 shrink-0">
-            <button
-              onClick={() => onViewChange('list')}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                currentView === 'list'
-                  ? 'bg-white text-gray-900 shadow-sm border border-gray-200/60'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
-              }`}
-            >
-              📋 Lista
-            </button>
-            <button
-              onClick={() => onViewChange('map')}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                currentView === 'map'
-                  ? 'bg-white text-gray-900 shadow-sm border border-gray-200/60'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
-              }`}
-            >
-              🗺️ Mapa
-            </button>
-          </div>
-
+      {/* Fila 1: toggle + búsqueda + agregar */}
+      <div className="px-4 pt-3 pb-2 flex items-center gap-3">
+        <div className="flex bg-gray-100 rounded-lg p-1 border border-gray-200 shrink-0">
           <button
-            onClick={onAddClick}
-            className="sm:hidden bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-4 py-2 rounded-lg shadow-sm"
+            onClick={() => onViewChange('list')}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+              currentView === 'list'
+                ? 'bg-white text-gray-900 shadow-sm border border-gray-200/60'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+            }`}
           >
-            ＋ Agregar
+            📋 Lista
+          </button>
+          <button
+            onClick={() => onViewChange('map')}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+              currentView === 'map'
+                ? 'bg-white text-gray-900 shadow-sm border border-gray-200/60'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
+            }`}
+          >
+            🗺️ Mapa
           </button>
         </div>
 
-        {/* Filtros */}
-        <div className="w-full flex-1 flex flex-wrap items-center gap-3">
-          
-          {/* Búsqueda */}
-          <input
-            type="text"
-            placeholder="Buscar lugares o necesidades..."
-            value={filtros.busqueda || ''}
-            onChange={(e) => update({ busqueda: e.target.value })}
-            className="flex-1 min-w-[200px] lg:min-w-[300px] bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
-          />
-          
-          {/* Tipo de Apoyo */}
+        <input
+          type="text"
+          placeholder="Buscar lugares, necesidades..."
+          value={filtros.busqueda || ''}
+          onChange={(e) => update({ busqueda: e.target.value })}
+          className="flex-1 bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
+        />
+
+        <button
+          onClick={onAddClick}
+          className="shrink-0 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-4 sm:px-5 py-2 rounded-lg transition-all shadow-sm flex items-center gap-1.5"
+        >
+          <span className="text-base leading-none">＋</span>
+          <span className="hidden sm:inline">Agregar punto</span>
+        </button>
+      </div>
+
+      {/* Fila 2: selectores + grupo de filtros rápidos */}
+      <div className="px-4 pb-3 flex flex-wrap items-center gap-2">
+        {/* Tipo de apoyo con icono */}
+        <div className="flex items-center gap-1.5 bg-white border border-gray-300 rounded-lg shadow-sm focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500 transition-colors pl-2.5">
+          <span className="text-sm pointer-events-none select-none shrink-0">🤝</span>
           <select
             value={filtros.tipoApoyo}
             onChange={(e) => update({ tipoApoyo: e.target.value })}
-            className="w-auto min-w-[150px] bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
+            className="py-2 pr-3 bg-transparent border-none text-gray-700 text-sm focus:outline-none cursor-pointer"
           >
-            <option value="todos">🤝 Todo tipo de ayuda</option>
+            <option value="todos">Todo tipo de ayuda</option>
             {TIPOS_APOYO.map((t) => (
-              <option key={t} value={t}>{TIPO_ICONS[t]} {t}</option>
+              <option key={t} value={t}>{t}</option>
             ))}
           </select>
+        </div>
 
-          {/* Ciudad */}
+        {/* Ciudad con icono */}
+        <div className="flex items-center gap-1.5 bg-white border border-gray-300 rounded-lg shadow-sm focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500 transition-colors pl-2.5">
+          <span className="text-sm pointer-events-none select-none shrink-0">📍</span>
           <select
             value={filtros.ciudad}
             onChange={(e) => update({ ciudad: e.target.value })}
-            className="w-auto min-w-[140px] bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
+            className="py-2 pr-3 bg-transparent border-none text-gray-700 text-sm focus:outline-none cursor-pointer"
           >
-            <option value="todas">🌍 Todas las ciudades</option>
+            <option value="todas">Todas las ciudades</option>
             {ciudades.map((c) => (
-              <option key={c} value={c}>📍 {c}</option>
+              <option key={c} value={c}>{c}</option>
             ))}
           </select>
+        </div>
 
-          {/* Radio (solo visible en desktop) */}
-          <div className="hidden lg:flex gap-1 shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-            {RADIOS.map((r) => (
-              <button
-                key={r.label}
-                onClick={() => update({ radio: r.value })}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                  filtros.radio === r.value
-                    ? 'bg-white text-red-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50'
-                }`}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Estado */}
+        {/* Grupo secundario: distancia + estado */}
+        <div className="flex items-center gap-1 bg-gray-100 border border-gray-200 rounded-xl p-1">
+          {RADIOS.map((r) => (
+            <button
+              key={r.label}
+              onClick={() => update({ radio: r.value })}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                filtros.radio === r.value
+                  ? 'bg-red-600 text-white shadow-sm'
+                  : 'text-gray-500 hover:bg-gray-200 hover:text-gray-800'
+              }`}
+            >
+              {r.label}
+            </button>
+          ))}
+          <div className="w-px h-4 bg-gray-300 mx-1 shrink-0" />
           <select
             value={filtros.estado}
             onChange={(e) => update({ estado: e.target.value as FiltrosMapa['estado'] })}
-            className="w-auto bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm shrink-0"
+            className="bg-transparent border-none text-xs font-medium text-gray-600 focus:outline-none pr-1 cursor-pointer"
           >
-            <option value="todos">Todos los estados</option>
-            <option value="necesita_apoyo">🔴 Necesita apoyo</option>
-            <option value="cubierto">🟢 Cubierto</option>
+            <option value="todos">Todos</option>
+            <option value="necesita_apoyo">Necesita apoyo</option>
+            <option value="cubierto">Cubierto</option>
           </select>
-
-          {/* Botón agregar (Desktop) */}
-          <button
-            onClick={onAddClick}
-            className="hidden sm:flex shrink-0 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-5 py-2 rounded-lg transition-all shadow-sm items-center gap-2 ml-auto"
-          >
-            <span className="text-lg leading-none">＋</span>
-            <span>Agregar punto</span>
-          </button>
         </div>
       </div>
 
