@@ -144,11 +144,11 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData }:
       ciudad: form.ciudad.trim(),
       pais: form.pais.trim(),
       tipo_apoyo: form.tipo_apoyo,
-      que_recibe: form.que_recibe.trim() || null,
-      contacto: form.contacto.trim() || null,
-      link_inscripcion: form.link_inscripcion.trim() || null,
-      horario: form.horario.trim() || null,
-      notas: form.notas.trim() || null,
+      que_recibe: form.que_recibe.trim() || undefined,
+      contacto: form.contacto.trim() || undefined,
+      link_inscripcion: form.link_inscripcion.trim() || undefined,
+      horario: form.horario.trim() || undefined,
+      notas: form.notas.trim() || undefined,
       ...(coords ?? {}),
     }
 
