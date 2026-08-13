@@ -51,6 +51,7 @@ export interface NuevoPunto {
   items_necesarios?: string[]
   que_recibe?: string
   contacto?: string
+  instagram?: string
   link_inscripcion?: string
   horario?: string
   notas?: string

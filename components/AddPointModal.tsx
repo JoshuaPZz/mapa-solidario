@@ -25,6 +25,7 @@ interface FormState {
   items_necesarios: string[]
   que_recibe: string
   contacto: string
+  instagram: string
   link_inscripcion: string
   horario: string
   notas: string
@@ -36,7 +37,7 @@ const DraggablePinMap = dynamic(() => import('./DraggablePinMap'), { ssr: false 
 const EMPTY: FormState = {
   nombre: '', direccion: '', ciudad: 'Bogotá', pais: 'Colombia',
   tipo_apoyo: [], items_urgentes: [], items_necesarios: [],
-  que_recibe: '', contacto: '',
+  que_recibe: '', contacto: '', instagram: '',
   link_inscripcion: '', horario: '', notas: '', website: '',
 }
 
@@ -98,6 +99,7 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
         items_necesarios: initialData.items_necesarios || [],
         que_recibe: initialData.que_recibe || '',
         contacto: initialData.contacto || '',
+        instagram: initialData.instagram || '',
         link_inscripcion: initialData.link_inscripcion || '',
         horario: initialData.horario || '',
         notas: initialData.notas || '',
@@ -279,6 +281,7 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
       items_necesarios: form.items_necesarios,
       que_recibe: form.que_recibe.trim() || undefined,
       contacto: form.contacto.trim() || undefined,
+      instagram: form.instagram.trim() || undefined,
       link_inscripcion: form.link_inscripcion.trim() || undefined,
       horario: form.horario.trim() || undefined,
       notas: form.notas.trim() || undefined,
@@ -596,17 +599,31 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
             />
           </div>
 
-          {/* Contacto */}
-          <div>
-            <label htmlFor="f-contacto" className="block text-gray-700 text-sm font-semibold mb-1.5">
-              Contacto <span className="text-gray-400 font-normal">(opcional)</span>
-            </label>
-            <input
-              id="f-contacto" type="text" value={form.contacto} maxLength={200}
-              onChange={(e) => set('contacto', e.target.value)}
-              placeholder="ej: 300 123 4567"
-              className="w-full bg-white text-gray-900 rounded-lg px-4 py-2.5 border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-400 text-sm transition-colors shadow-sm"
-            />
+          {/* Contacto e Instagram */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="f-contacto" className="block text-gray-700 text-sm font-semibold mb-1.5">
+                Contacto <span className="text-gray-400 font-normal">(opcional)</span>
+              </label>
+              <input
+                id="f-contacto" type="text" value={form.contacto} maxLength={200}
+                onChange={(e) => set('contacto', e.target.value)}
+                placeholder="ej: 300 123 4567"
+                className="w-full bg-white text-gray-900 rounded-lg px-4 py-2.5 border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-400 text-sm transition-colors shadow-sm"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="f-instagram" className="block text-gray-700 text-sm font-semibold mb-1.5">
+                Instagram <span className="text-gray-400 font-normal">(opcional)</span>
+              </label>
+              <input
+                id="f-instagram" type="text" value={form.instagram} maxLength={200}
+                onChange={(e) => set('instagram', e.target.value)}
+                placeholder="ej: https://instagram.com/cuenta o @cuenta"
+                className="w-full bg-white text-gray-900 rounded-lg px-4 py-2.5 border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-400 text-sm transition-colors shadow-sm"
+              />
+            </div>
           </div>
 
           {/* Notas */}
