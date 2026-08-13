@@ -8,6 +8,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import ConfirmModal from './ConfirmModal'
 import ExpandableText from './ExpandableText'
+import ContactDropdown from './ContactDropdown'
 
 interface PointCardProps {
   punto: PuntoAyuda
@@ -19,10 +20,6 @@ interface PointCardProps {
 export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditPunto }: PointCardProps) {
   const isCubierto = punto.estado === 'cubierto'
   
-  const contactosList = punto.contacto
-    ? punto.contacto.split(/[,-]|\sy\s/i).map(c => c.trim()).filter(Boolean)
-    : [];
-
   const [confirmConfig, setConfirmConfig] = useState<{ isOpen: boolean, msg: string, action: (() => void) | null, isDestructive: boolean }>({
     isOpen: false,
     msg: '',
@@ -156,26 +153,7 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
           )}
 
           {/* Contacto (Teléfono o Texto) */}
-          {contactosList.map((contacto, idx) => {
-            const isPhone = contacto.replace(/\D/g, '').length >= 7;
-            return isPhone ? (
-              <a
-                key={idx}
-                href={`tel:${contacto.replace(/[^0-9+]/g, '')}`}
-                className="flex items-center gap-1.5 bg-white text-emerald-700 border border-gray-200 shadow-sm px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors hover:bg-gray-50"
-              >
-                <span className="text-emerald-600">📞</span> {contacto}
-              </a>
-            ) : (
-              <div
-                key={idx}
-                className="flex items-center gap-1.5 bg-gray-50 text-gray-700 border border-gray-200 shadow-sm px-3 py-1.5 rounded-lg text-sm font-semibold max-w-[250px] sm:max-w-xs"
-              >
-                <span className="text-gray-500 shrink-0">📞</span> 
-                <span className="truncate" title={contacto}>{contacto}</span>
-              </div>
-            );
-          })}
+          {punto.contacto && <ContactDropdown contacto={punto.contacto} />}
 
           {/* Link Inscripción o WhatsApp */}
           {punto.link_inscripcion && (
