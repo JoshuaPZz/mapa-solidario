@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { supabase, fotoUrl } from '@/lib/supabase'
 import type { PuntoAyuda, NuevoPunto } from '@/lib/types'
 import { TIPOS_APOYO, TIPO_ICONS, ITEMS_AYUDA } from '@/lib/types'
@@ -29,6 +30,8 @@ interface FormState {
   notas: string
   website: string // honeypot
 }
+
+const DraggablePinMap = dynamic(() => import('./DraggablePinMap'), { ssr: false })
 
 const EMPTY: FormState = {
   nombre: '', direccion: '', ciudad: 'Bogotá', pais: 'Colombia',
@@ -211,11 +214,11 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
         const newCoords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }
         setLatLng(newCoords)
         setGeocodeStatus('ok')
-        setGeocodeMsg(`Ubicación encontrada: ${newCoords.lat.toFixed(4)}, ${newCoords.lng.toFixed(4)}`)
+        setGeocodeMsg(`Ubicación encontrada en mapa.`)
         buscarSimilares(newCoords)
       } else {
         setGeocodeStatus('error')
-        setGeocodeMsg('No se encontró la dirección exacta. Se guardará sin mapa.')
+        setGeocodeMsg('No se encontró la dirección exacta. Intenta ser más específico (ej. "Carrera 15 #124-30, Bogotá").')
         setLatLng(null)
         buscarSimilares(null)
       }
@@ -438,8 +441,11 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
                 </div>
               )}
             </div>
-            {geocodeStatus === 'ok' && (
-              <p className="text-green-600 text-xs mt-1.5 font-medium">✓ {geocodeMsg}</p>
+            {geocodeStatus === 'ok' && latLng && (
+              <div className="mt-2">
+                <p className="text-green-600 text-xs mb-1 font-medium">✓ {geocodeMsg}</p>
+                <DraggablePinMap lat={latLng.lat} lng={latLng.lng} onChange={(lat, lng) => setLatLng({ lat, lng })} />
+              </div>
             )}
             {geocodeStatus === 'error' && (
               <p className="text-orange-600 text-xs mt-1.5 font-medium">⚠️ {geocodeMsg}</p>
