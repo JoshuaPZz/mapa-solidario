@@ -115,7 +115,8 @@ export default function HomePage() {
   const handleEstadoCambiado = async (id: string, nuevoEstado: 'necesita_apoyo' | 'cubierto') => {
     if (nuevoEstado === 'cubierto') {
       // Usar la función segura para evitar sabotaje
-      const { error } = await supabase.rpc('reportar_punto_cubierto', { punto_id: id })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase.rpc as any)('reportar_punto_cubierto', { punto_id: id })
       if (error) console.error('Error reportando punto cubierto:', error)
       else alert('¡Reporte enviado! Gracias por avisar.')
     } else {
