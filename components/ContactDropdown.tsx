@@ -12,7 +12,7 @@ export default function ContactDropdown({ contacto }: ContactDropdownProps) {
 
   // Parse by comma, hyphen, pipe, or the word 'y'
   const contactosList = contacto
-    .split(/[,-|]|\sy\s/i)
+    .split(/[,|-]|\sy\s/i)
     .map(c => c.trim())
     .filter(Boolean)
 
