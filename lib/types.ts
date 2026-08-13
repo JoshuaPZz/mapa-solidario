@@ -33,6 +33,7 @@ export interface PuntoAyuda {
   creado_en: string
   actualizado_en: string
   distanciaKm?: number
+  reportes_cubierto?: number
 }
 
 export interface NuevoPunto {

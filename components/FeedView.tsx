@@ -23,12 +23,12 @@ export default function FeedView({ puntos, onVerEnMapa, onCambiarEstado }: FeedV
   return (
     <div className="w-full max-w-4xl mx-auto p-4 md:p-6 lg:p-8">
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white">
-          Puntos de Ayuda <span className="text-slate-500 font-normal text-lg">({puntos.length})</span>
+        <h2 className="text-2xl font-bold text-gray-900">
+          Puntos de Ayuda <span className="text-gray-500 font-medium text-lg">({puntos.length})</span>
         </h2>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-24">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
         {puntos.map((punto) => (
           <PointCard
             key={punto.id}

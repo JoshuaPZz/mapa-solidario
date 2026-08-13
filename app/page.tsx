@@ -113,12 +113,20 @@ export default function HomePage() {
   }
 
   const handleEstadoCambiado = async (id: string, nuevoEstado: 'necesita_apoyo' | 'cubierto') => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
-      .from('puntos_ayuda')
-      .update({ estado: nuevoEstado })
-      .eq('id', id)
-    if (error) console.error('Error actualizando estado:', error)
+    if (nuevoEstado === 'cubierto') {
+      // Usar la función segura para evitar sabotaje
+      const { error } = await supabase.rpc('reportar_punto_cubierto', { punto_id: id })
+      if (error) console.error('Error reportando punto cubierto:', error)
+      else alert('¡Reporte enviado! Gracias por avisar.')
+    } else {
+      // Reabrir el punto (opcional, sin protección por ahora)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
+        .from('puntos_ayuda')
+        .update({ estado: 'necesita_apoyo', reportes_cubierto: 0 })
+        .eq('id', id)
+      if (error) console.error('Error reabriendo punto:', error)
+    }
   }
 
   const handleVerEnMapa = (punto: PuntoAyuda) => {
@@ -147,7 +155,7 @@ export default function HomePage() {
   const visibles = puntosFiltrados()
 
   return (
-    <main className="h-screen w-screen flex flex-col overflow-hidden bg-slate-950">
+    <main className="h-screen w-screen flex flex-col overflow-hidden bg-gray-50">
       <FilterBar
         filtros={filtros}
         onFiltrosChange={setFiltros}
@@ -161,10 +169,10 @@ export default function HomePage() {
 
       <div className="flex-1 relative overflow-y-auto">
         {loading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-slate-950 z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-white text-lg font-medium">Cargando datos...</p>
+              <p className="text-gray-600 text-lg font-medium">Cargando datos...</p>
             </div>
           </div>
         ) : currentView === 'list' ? (

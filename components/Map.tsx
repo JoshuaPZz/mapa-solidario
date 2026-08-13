@@ -71,12 +71,12 @@ function ZoomControls() {
     <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-1">
       <button
         onClick={() => map.zoomIn()}
-        className="w-10 h-10 bg-slate-900/90 backdrop-blur-sm text-white rounded-xl border border-slate-700 text-xl font-bold hover:bg-slate-800 transition-colors flex items-center justify-center"
+        className="w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-800 rounded-xl border border-gray-200 text-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center"
         aria-label="Acercar mapa"
       >+</button>
       <button
         onClick={() => map.zoomOut()}
-        className="w-10 h-10 bg-slate-900/90 backdrop-blur-sm text-white rounded-xl border border-slate-700 text-xl font-bold hover:bg-slate-800 transition-colors flex items-center justify-center"
+        className="w-10 h-10 bg-white/90 backdrop-blur-sm text-gray-800 rounded-xl border border-gray-200 text-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center"
         aria-label="Alejar mapa"
       >−</button>
     </div>
@@ -147,13 +147,16 @@ export default function Map({ puntos, filtros, userLocation, onEstadoCambiado, t
         ))}
       </MapContainer>
 
-      {/* Contador */}
-      <div className="absolute bottom-16 left-4 z-[1000] bg-slate-900/90 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full border border-slate-700">
-        {visibles.length} punto{visibles.length !== 1 ? 's' : ''} visible{visibles.length !== 1 ? 's' : ''}
-      </div>
+      {/* Indicador de radio */}
+      {filtros.radio && (
+        <div className="absolute bottom-16 left-4 z-[1000] bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-3 py-1.5 rounded-full border border-gray-200">
+          Mostrando radio de {filtros.radio}km
+        </div>
+      )}
 
       {/* Leyenda */}
-      <div className="absolute bottom-4 left-4 z-[1000] bg-slate-900/90 backdrop-blur-sm text-white text-xs px-3 py-2 rounded-xl border border-slate-700 space-y-1">
+      <div className="absolute bottom-4 left-4 z-[1000] bg-white/90 backdrop-blur-sm text-gray-800 text-xs px-3 py-2 rounded-xl border border-gray-200 space-y-1">
+        <div className="font-semibold mb-1 text-gray-900">Leyenda</div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500 shrink-0" />
           <span>Necesita apoyo</span>
