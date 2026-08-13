@@ -12,6 +12,7 @@ interface FilterBarProps {
   onAddClick: () => void
   currentView: 'list' | 'map'
   onViewChange: (view: 'list' | 'map') => void
+  onInfoClick: () => void
 }
 
 export default function FilterBar({
@@ -23,6 +24,7 @@ export default function FilterBar({
   onAddClick,
   currentView,
   onViewChange,
+  onInfoClick,
 }: FilterBarProps) {
   const update = (partial: Partial<FiltrosMapa>) =>
     onFiltrosChange({ ...filtros, ...partial })
@@ -163,7 +165,15 @@ export default function FilterBar({
       {/* Sub-barra de estatus */}
       <div className="px-5 pb-2 flex items-center justify-between text-xs text-gray-500">
         <span>Mostrando {totalPuntos} puntos</span>
-        <span className="hidden sm:inline-block">Actualización en tiempo real vía Supabase</span>
+        <div className="flex items-center gap-4">
+          <span className="hidden sm:inline-block">Actualización en tiempo real vía Supabase</span>
+          <button
+            onClick={onInfoClick}
+            className="text-gray-400 hover:text-red-600 font-medium transition-colors underline underline-offset-2"
+          >
+            Sobre este mapa
+          </button>
+        </div>
       </div>
     </header>
   )

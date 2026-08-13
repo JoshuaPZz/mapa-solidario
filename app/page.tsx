@@ -8,6 +8,7 @@ import FilterBar from '@/components/FilterBar'
 import AddPointModal from '@/components/AddPointModal'
 
 import FeedView from '@/components/FeedView'
+import WelcomeScreen from '@/components/WelcomeScreen'
 import { filtrarPorRadio } from '@/lib/haversine'
 
 // Leaflet solo se renderiza en el cliente (no SSR)
@@ -187,6 +188,9 @@ export default function HomePage() {
         onAddClick={() => setShowAddModal(true)}
         currentView={currentView}
         onViewChange={setCurrentView}
+        onInfoClick={() => {
+          document.getElementById('welcome-section')?.scrollIntoView({ behavior: 'smooth' })
+        }}
       />
 
       <div className="flex-1 relative overflow-y-auto">
@@ -198,12 +202,17 @@ export default function HomePage() {
             </div>
           </div>
         ) : currentView === 'list' ? (
-          <FeedView
-            puntos={visibles}
-            onVerEnMapa={handleVerEnMapa}
-            onCambiarEstado={handleEstadoCambiado}
-            onEditPunto={setEditingPoint}
-          />
+          <>
+            <div id="welcome-section">
+              <WelcomeScreen />
+            </div>
+            <FeedView
+              puntos={visibles}
+              onVerEnMapa={handleVerEnMapa}
+              onCambiarEstado={handleEstadoCambiado}
+              onEditPunto={setEditingPoint}
+            />
+          </>
         ) : (
           <MapComponent
             puntos={visibles}
