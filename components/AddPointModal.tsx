@@ -6,6 +6,7 @@ import { supabase, fotoUrl } from '@/lib/supabase'
 import type { PuntoAyuda, NuevoPunto } from '@/lib/types'
 import { TIPOS_APOYO, TIPO_ICONS, ITEMS_AYUDA } from '@/lib/types'
 import { haversineKm } from '@/lib/haversine'
+import ConfirmModal from './ConfirmModal'
 
 interface AddPointModalProps {
   onClose: () => void
@@ -75,6 +76,13 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
   const [similaresDismissed, setSimilaresDismissed] = useState(false)
   const [fotosFiles, setFotosFiles] = useState<File[]>([])
   const [fotosPreview, setFotosPreview] = useState<string[]>([])
+  
+  const [confirmConfig, setConfirmConfig] = useState<{ isOpen: boolean, msg: string, action: (() => void) | null, isDestructive: boolean }>({
+    isOpen: false,
+    msg: '',
+    action: null,
+    isDestructive: false
+  })
   const [fotosExistentes, setFotosExistentes] = useState<string[]>([])
   const [uploadingFotos, setUploadingFotos] = useState(false)
   const lastGeoQuery = useRef('')
@@ -252,10 +260,15 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
       ? "ADVERTENCIA DE RESPONSABILIDAD:\n\nEstás a punto de modificar información crítica en medio de una emergencia. Esta información será vista por miles de personas que necesitan o están brindando ayuda real.\n\nFalsificar o borrar información intencionalmente perjudica los esfuerzos de rescate.\n\n¿Estás absolutamente seguro de que los datos que ingresaste son reales y verificados?"
       : "ADVERTENCIA DE RESPONSABILIDAD:\n\nEstás creando un nuevo punto de ayuda público. Esta información será visible inmediatamente para coordinar rescates y donaciones.\n\nCrear puntos falsos distrae recursos vitales y perjudica a quienes realmente lo necesitan.\n\n¿Estás seguro de que este punto es 100% real y verificado?";
 
-    if (!window.confirm(confirmMsg)) {
-      return;
-    }
+    setConfirmConfig({
+      isOpen: true,
+      msg: confirmMsg,
+      action: () => executeSubmit(),
+      isDestructive: false
+    })
+  }
 
+  const executeSubmit = async () => {
     setSubmitting(true)
     setError('')
 
@@ -727,6 +740,17 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
           </p>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        message={confirmConfig.msg}
+        isDestructive={confirmConfig.isDestructive}
+        onConfirm={() => {
+          if (confirmConfig.action) confirmConfig.action()
+          setConfirmConfig(prev => ({ ...prev, isOpen: false }))
+        }}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   )
 }

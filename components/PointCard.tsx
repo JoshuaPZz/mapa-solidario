@@ -1,10 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import type { PuntoAyuda } from '@/lib/types'
 import { TIPO_ICONS } from '@/lib/types'
 import { fotoUrl } from '@/lib/supabase'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
+import ConfirmModal from './ConfirmModal'
 
 interface PointCardProps {
   punto: PuntoAyuda
@@ -15,6 +17,12 @@ interface PointCardProps {
 
 export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditPunto }: PointCardProps) {
   const isCubierto = punto.estado === 'cubierto'
+  const [confirmConfig, setConfirmConfig] = useState<{ isOpen: boolean, msg: string, action: (() => void) | null, isDestructive: boolean }>({
+    isOpen: false,
+    msg: '',
+    action: null,
+    isDestructive: false
+  })
 
   return (
     <div className={`relative flex flex-col bg-white border rounded-xl p-5 shadow-sm transition-all duration-300 hover:shadow-md ${isCubierto ? 'border-green-200 bg-green-50/30' : 'border-gray-200 hover:border-red-200'}`}>
@@ -188,9 +196,12 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
             <button
               onClick={() => {
                 const confirmMsg = "ADVERTENCIA DE RESPONSABILIDAD:\n\nVas a editar información pública. Por favor, asegúrate de que la información sea verídica. Falsificar datos perjudica la ayuda.\n\n¿Deseas continuar a la edición?";
-                if (window.confirm(confirmMsg)) {
-                  onEditPunto(punto);
-                }
+                setConfirmConfig({
+                  isOpen: true,
+                  msg: confirmMsg,
+                  action: () => onEditPunto(punto),
+                  isDestructive: false
+                })
               }}
               className="flex-1 sm:flex-none px-3 py-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-1.5"
             >
@@ -203,9 +214,12 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
               onClick={() => {
                 const nuevoEstado = isCubierto ? 'necesita_apoyo' : 'cubierto';
                 const confirmMsg = "ADVERTENCIA DE RESPONSABILIDAD:\n\nEstás a punto de reportar el estado de este punto.\nReportes falsos retrasan el rescate y las ayudas a quienes lo necesitan.\n\n¿Estás 100% seguro de tu reporte?";
-                if (window.confirm(confirmMsg)) {
-                  onCambiarEstado(punto.id, nuevoEstado);
-                }
+                setConfirmConfig({
+                  isOpen: true,
+                  msg: confirmMsg,
+                  action: () => onCambiarEstado(punto.id, nuevoEstado),
+                  isDestructive: !isCubierto
+                })
               }}
               className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition-colors border ${
                 isCubierto 
@@ -227,6 +241,17 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        message={confirmConfig.msg}
+        isDestructive={confirmConfig.isDestructive}
+        onConfirm={() => {
+          if (confirmConfig.action) confirmConfig.action()
+          setConfirmConfig(prev => ({ ...prev, isOpen: false }))
+        }}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   )
 }

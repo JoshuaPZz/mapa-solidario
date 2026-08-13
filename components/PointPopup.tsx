@@ -6,6 +6,7 @@ import { TIPO_ICONS } from '@/lib/types'
 import { fotoUrl } from '@/lib/supabase'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
+import ConfirmModal from './ConfirmModal'
 
 interface PointPopupProps {
   punto: PuntoAyuda
@@ -18,6 +19,12 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
   const esNecesita = punto.estado === 'necesita_apoyo'
   const fotos = punto.fotos ?? []
   const [fotoIdx, setFotoIdx] = useState(0)
+  const [confirmConfig, setConfirmConfig] = useState<{ isOpen: boolean, msg: string, action: (() => void) | null, isDestructive: boolean }>({
+    isOpen: false,
+    msg: '',
+    action: null,
+    isDestructive: false
+  })
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const prevFoto = () => setFotoIdx((i) => (i - 1 + fotos.length) % fotos.length)
@@ -230,9 +237,12 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
             <button
               onClick={() => {
                 const confirmMsg = "ADVERTENCIA DE RESPONSABILIDAD:\n\nVas a editar información pública. Por favor, asegúrate de que la información sea verídica. Falsificar datos perjudica la ayuda.\n\n¿Deseas continuar a la edición?";
-                if (window.confirm(confirmMsg)) {
-                  onEditPunto(punto);
-                }
+                setConfirmConfig({
+                  isOpen: true,
+                  msg: confirmMsg,
+                  action: () => onEditPunto(punto),
+                  isDestructive: false
+                })
               }}
               className="text-gray-500 hover:text-blue-600 text-xs font-semibold flex items-center gap-1 transition-colors"
             >
@@ -294,9 +304,12 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
           onClick={() => {
             const nuevoEstado = esNecesita ? 'cubierto' : 'necesita_apoyo';
             const confirmMsg = "ADVERTENCIA DE RESPONSABILIDAD:\n\nEstás a punto de reportar el estado de este punto.\nReportes falsos retrasan el rescate y las ayudas a quienes lo necesitan.\n\n¿Estás 100% seguro de tu reporte?";
-            if (window.confirm(confirmMsg)) {
-              onEstadoCambiado(nuevoEstado);
-            }
+            setConfirmConfig({
+              isOpen: true,
+              msg: confirmMsg,
+              action: () => onEstadoCambiado(nuevoEstado),
+              isDestructive: false
+            })
           }}
           className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] border ${
             esNecesita
@@ -308,6 +321,17 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
           {esNecesita ? '✅ Reportar como cubierto' : '🔴 Reabrir punto'}
         </button>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        message={confirmConfig.msg}
+        isDestructive={confirmConfig.isDestructive}
+        onConfirm={() => {
+          if (confirmConfig.action) confirmConfig.action()
+          setConfirmConfig(prev => ({ ...prev, isOpen: false }))
+        }}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   )
 }
