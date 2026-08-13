@@ -7,6 +7,7 @@ import { fotoUrl } from '@/lib/supabase'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import ConfirmModal from './ConfirmModal'
+import ExpandableText from './ExpandableText'
 
 interface PointCardProps {
   punto: PuntoAyuda
@@ -105,7 +106,7 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
         {punto.que_recibe && (
           <div>
             <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">¿Qué necesita?</p>
-            <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">{punto.que_recibe}</p>
+            <ExpandableText text={punto.que_recibe} maxLength={180} className="text-sm text-gray-800" />
           </div>
         )}
         
@@ -121,7 +122,7 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
         {punto.notas && (
           <div>
             <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Notas</p>
-            <p className="text-sm text-gray-600 break-words whitespace-pre-wrap">{punto.notas}</p>
+            <ExpandableText text={punto.notas} maxLength={180} className="text-sm text-gray-600" />
           </div>
         )}
 

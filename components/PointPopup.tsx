@@ -7,6 +7,7 @@ import { fotoUrl } from '@/lib/supabase'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import ConfirmModal from './ConfirmModal'
+import ExpandableText from './ExpandableText'
 
 interface PointPopupProps {
   punto: PuntoAyuda
@@ -150,31 +151,34 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
 
         {/* Qué recibe */}
         {punto.que_recibe && (
-          <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
-            <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide mb-1">
-              📋 Descripción adicional
-            </p>
-            <p className="text-gray-800 text-sm leading-relaxed break-words whitespace-pre-wrap">{punto.que_recibe}</p>
+          <div>
+            <h4 className="text-sm font-semibold text-gray-900 mb-1.5 flex items-center gap-1.5">
+              <span>📋</span> ¿Qué necesita?
+            </h4>
+            <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
+              <ExpandableText text={punto.que_recibe} maxLength={250} className="text-gray-700 text-sm leading-relaxed" />
+            </div>
           </div>
         )}
 
         {/* Horario */}
         {punto.horario && (
-          <div className="flex items-start gap-2.5">
-            <span className="text-lg shrink-0">🕐</span>
-            <div>
-              <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Horario</p>
-              <p className="text-gray-800 text-sm break-words whitespace-pre-wrap">{punto.horario}</p>
-            </div>
+          <div className="bg-blue-50/50 rounded-xl p-3 border border-blue-100/50">
+            <p className="text-blue-900 text-sm font-medium">
+              🕒 {punto.horario}
+            </p>
           </div>
         )}
 
         {/* Notas */}
         {punto.notas && (
-          <div className="bg-orange-50 border border-orange-100 rounded-xl p-3">
-            <p className="text-orange-800 text-sm leading-relaxed break-words whitespace-pre-wrap">
-              <span className="font-semibold">ℹ️ </span>{punto.notas}
-            </p>
+          <div>
+            <h4 className="text-sm font-semibold text-gray-900 mb-1.5 flex items-center gap-1.5">
+              <span>📌</span> Notas
+            </h4>
+            <div className="bg-amber-50 rounded-xl p-3 border border-amber-100">
+              <ExpandableText text={punto.notas} maxLength={250} className="text-amber-900 text-sm leading-relaxed" />
+            </div>
           </div>
         )}
 
