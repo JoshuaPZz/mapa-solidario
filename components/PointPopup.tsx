@@ -205,15 +205,22 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
             </a>
           )}
 
-          {/* Link Inscripción */}
+          {/* Link Inscripción o WhatsApp */}
           {punto.link_inscripcion && (
             <a
               href={punto.link_inscripcion.startsWith('http') ? punto.link_inscripcion : '#'}
               target={punto.link_inscripcion.startsWith('http') ? '_blank' : undefined}
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 bg-white text-blue-700 border border-gray-200 shadow-sm px-4 py-2 rounded-lg text-sm font-semibold transition-colors hover:bg-gray-50"
+              className={`flex items-center gap-1.5 border shadow-sm px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                punto.link_inscripcion.includes('whatsapp') || punto.link_inscripcion.includes('wa.me')
+                  ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                  : 'bg-white text-blue-700 border-gray-200 hover:bg-gray-50'
+              }`}
             >
-              <span>📝</span> {punto.link_inscripcion.startsWith('http') ? 'Inscripción' : punto.link_inscripcion}
+              <span>{punto.link_inscripcion.includes('whatsapp') || punto.link_inscripcion.includes('wa.me') ? '💬' : '📝'}</span> 
+              {punto.link_inscripcion.includes('whatsapp') || punto.link_inscripcion.includes('wa.me') 
+                ? 'WhatsApp'
+                : (punto.link_inscripcion.startsWith('http') ? 'Inscripción' : punto.link_inscripcion)}
             </a>
           )}
         </div>
