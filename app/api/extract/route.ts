@@ -8,7 +8,8 @@ const instaUrlRegex = /https?:\/\/(?:www\.)?instagram\.com\/([a-zA-Z0-9_.-]+)/g;
 const instaHandleRegex = /@([a-zA-Z0-9_.-]+)/g;
 
 export async function GET() {
-  const { data: puntos, error } = await supabase.from('puntos_ayuda').select('*')
+  const { data, error } = await supabase.from('puntos_ayuda').select('*')
+  const puntos = data as any[] | null
   
   if (error || !puntos) {
     return NextResponse.json({ error: error?.message || 'Error fetching data' }, { status: 500 })
