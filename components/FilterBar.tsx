@@ -86,82 +86,77 @@ export default function FilterBar({
         </div>
 
         {/* Filtros */}
-        <div className="w-full flex-1 flex flex-col md:flex-row items-center gap-3">
+        <div className="w-full flex-1 flex flex-wrap items-center gap-3">
           
-          {/* Primera fila de filtros en mobile, colapsados en desktop */}
-          <div className="w-full flex items-center gap-3 flex-wrap sm:flex-nowrap">
-            {/* Búsqueda */}
-            <input
-              type="text"
-              placeholder="Buscar lugares o necesidades..."
-              value={filtros.busqueda || ''}
-              onChange={(e) => update({ busqueda: e.target.value })}
-              className="flex-1 min-w-[160px] bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
-            />
-            
-            {/* Tipo de Apoyo */}
-            <select
-              value={filtros.tipoApoyo}
-              onChange={(e) => update({ tipoApoyo: e.target.value })}
-              className="flex-1 min-w-[150px] bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
-            >
-              <option value="todos">🤝 Todo tipo de ayuda</option>
-              {TIPOS_APOYO.map((t) => (
-                <option key={t} value={t}>{TIPO_ICONS[t]} {t}</option>
-              ))}
-            </select>
+          {/* Búsqueda */}
+          <input
+            type="text"
+            placeholder="Buscar lugares o necesidades..."
+            value={filtros.busqueda || ''}
+            onChange={(e) => update({ busqueda: e.target.value })}
+            className="flex-1 min-w-[200px] lg:min-w-[300px] bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
+          />
+          
+          {/* Tipo de Apoyo */}
+          <select
+            value={filtros.tipoApoyo}
+            onChange={(e) => update({ tipoApoyo: e.target.value })}
+            className="w-auto min-w-[150px] bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
+          >
+            <option value="todos">🤝 Todo tipo de ayuda</option>
+            {TIPOS_APOYO.map((t) => (
+              <option key={t} value={t}>{TIPO_ICONS[t]} {t}</option>
+            ))}
+          </select>
+
+          {/* Ciudad */}
+          <select
+            value={filtros.ciudad}
+            onChange={(e) => update({ ciudad: e.target.value })}
+            className="w-auto min-w-[140px] bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
+          >
+            <option value="todas">🌍 Todas las ciudades</option>
+            {ciudades.map((c) => (
+              <option key={c} value={c}>📍 {c}</option>
+            ))}
+          </select>
+
+          {/* Radio (solo visible en desktop) */}
+          <div className="hidden lg:flex gap-1 shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
+            {RADIOS.map((r) => (
+              <button
+                key={r.label}
+                onClick={() => update({ radio: r.value })}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  filtros.radio === r.value
+                    ? 'bg-white text-red-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50'
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
           </div>
 
-          <div className="w-full flex items-center gap-3 flex-wrap sm:flex-nowrap">
-            {/* Ciudad */}
-            <select
-              value={filtros.ciudad}
-              onChange={(e) => update({ ciudad: e.target.value })}
-              className="flex-1 min-w-[140px] bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
-            >
-              <option value="todas">🌍 Todas las ciudades</option>
-              {ciudades.map((c) => (
-                <option key={c} value={c}>📍 {c}</option>
-              ))}
-            </select>
+          {/* Estado */}
+          <select
+            value={filtros.estado}
+            onChange={(e) => update({ estado: e.target.value as FiltrosMapa['estado'] })}
+            className="w-auto bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm shrink-0"
+          >
+            <option value="todos">Todos los estados</option>
+            <option value="necesita_apoyo">🔴 Necesita apoyo</option>
+            <option value="cubierto">🟢 Cubierto</option>
+          </select>
 
-            {/* Radio (solo visible si tiene ciudad o permiso, o siempre visible) */}
-            <div className="hidden lg:flex gap-1 shrink-0 bg-gray-100 p-1 rounded-lg border border-gray-200">
-              {RADIOS.map((r) => (
-                <button
-                  key={r.label}
-                  onClick={() => update({ radio: r.value })}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                    filtros.radio === r.value
-                      ? 'bg-white text-red-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50'
-                  }`}
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Estado */}
-            <select
-              value={filtros.estado}
-              onChange={(e) => update({ estado: e.target.value as FiltrosMapa['estado'] })}
-              className="w-[140px] bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm shrink-0"
-            >
-              <option value="todos">Todos los estados</option>
-              <option value="necesita_apoyo">🔴 Necesita apoyo</option>
-              <option value="cubierto">🟢 Cubierto</option>
-            </select>
-
-            {/* Botón agregar (Desktop) */}
-            <button
-              onClick={onAddClick}
-              className="hidden sm:flex shrink-0 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-5 py-2 rounded-lg transition-all shadow-sm items-center gap-2"
-            >
-              <span className="text-lg leading-none">＋</span>
-              <span>Agregar punto</span>
-            </button>
-          </div>
+          {/* Botón agregar (Desktop) */}
+          <button
+            onClick={onAddClick}
+            className="hidden sm:flex shrink-0 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-5 py-2 rounded-lg transition-all shadow-sm items-center gap-2 ml-auto"
+          >
+            <span className="text-lg leading-none">＋</span>
+            <span>Agregar punto</span>
+          </button>
         </div>
       </div>
 
