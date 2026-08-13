@@ -2,6 +2,7 @@
 
 import type { PuntoAyuda } from '@/lib/types'
 import { TIPO_ICONS } from '@/lib/types'
+import { fotoUrl } from '@/lib/supabase'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -18,13 +19,29 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
   return (
     <div className={`relative flex flex-col bg-white border rounded-xl p-5 shadow-sm transition-all duration-300 hover:shadow-md ${isCubierto ? 'border-green-200 bg-green-50/30' : 'border-gray-200 hover:border-red-200'}`}>
       
-      {/* Banner decorativo tipo imagen */}
-      <div className="h-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl -mx-5 -mt-5 mb-4 border-b border-gray-200 flex items-center justify-center overflow-hidden relative">
-        <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]"></div>
-        <span className="text-5xl opacity-40 mix-blend-multiply filter grayscale drop-shadow-sm transition-transform hover:scale-110">
-          {TIPO_ICONS[punto.tipo_apoyo[0]] || '📍'}
-        </span>
-      </div>
+      {/* Banner: foto real o placeholder */}
+      {punto.fotos && punto.fotos.length > 0 ? (
+        <div className="h-32 -mx-5 -mt-5 mb-4 relative overflow-hidden rounded-t-xl">
+          <img
+            src={fotoUrl(punto.fotos[0])}
+            alt={punto.nombre}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+          {punto.fotos.length > 1 && (
+            <span className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full">
+              +{punto.fotos.length - 1} fotos
+            </span>
+          )}
+        </div>
+      ) : (
+        <div className="h-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl -mx-5 -mt-5 mb-4 border-b border-gray-200 flex items-center justify-center overflow-hidden relative">
+          <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]"></div>
+          <span className="text-5xl opacity-40 mix-blend-multiply filter grayscale drop-shadow-sm">
+            {TIPO_ICONS[punto.tipo_apoyo[0]] || '📍'}
+          </span>
+        </div>
+      )}
 
       {/* Header: Title and Status Badge */}
       <div className="flex justify-between items-start gap-4 mb-3">
@@ -49,6 +66,22 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
           </div>
         )}
       </div>
+
+      {/* Badges de ítems urgentes/necesarios */}
+      {((punto.items_urgentes?.length ?? 0) > 0 || (punto.items_necesarios?.length ?? 0) > 0) && (
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {punto.items_urgentes?.map((item) => (
+            <span key={item} className="flex items-center gap-1 bg-red-50 text-red-700 border border-red-200 px-2.5 py-1 rounded-full text-xs font-semibold">
+              🔴 {item}
+            </span>
+          ))}
+          {punto.items_necesarios?.map((item) => (
+            <span key={item} className="flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-full text-xs font-semibold">
+              🟡 {item}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Tipo de Apoyo Tags */}
       <div className="flex flex-wrap gap-2 mb-4">

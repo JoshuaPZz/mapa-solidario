@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase, fotoUrl } from '@/lib/supabase'
 import type { PuntoAyuda, NuevoPunto } from '@/lib/types'
-import { TIPOS_APOYO, TIPO_ICONS } from '@/lib/types'
+import { TIPOS_APOYO, TIPO_ICONS, ITEMS_AYUDA } from '@/lib/types'
 import { haversineKm } from '@/lib/haversine'
 
 interface AddPointModalProps {
@@ -20,6 +20,8 @@ interface FormState {
   ciudad: string
   pais: string
   tipo_apoyo: string[]
+  items_urgentes: string[]
+  items_necesarios: string[]
   que_recibe: string
   contacto: string
   link_inscripcion: string
@@ -30,8 +32,31 @@ interface FormState {
 
 const EMPTY: FormState = {
   nombre: '', direccion: '', ciudad: 'Bogotá', pais: 'Colombia',
-  tipo_apoyo: [], que_recibe: '', contacto: '',
+  tipo_apoyo: [], items_urgentes: [], items_necesarios: [],
+  que_recibe: '', contacto: '',
   link_inscripcion: '', horario: '', notas: '', website: '',
+}
+
+async function comprimirImagen(file: File): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const MAX_W = 1200
+      const ratio = Math.min(1, MAX_W / img.width)
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(img.width * ratio)
+      canvas.height = Math.round(img.height * ratio)
+      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height)
+      canvas.toBlob(
+        (b) => b ? resolve(b) : reject(new Error('Compresión fallida')),
+        'image/jpeg', 0.82
+      )
+    }
+    img.onerror = reject
+    img.src = url
+  })
 }
 
 export default function AddPointModal({ onClose, onPuntoAgregado, initialData, puntos, onVerPunto }: AddPointModalProps) {
@@ -44,10 +69,19 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
   const [error, setError] = useState('')
   const [similares, setSimilares] = useState<PuntoAyuda[]>([])
   const [similaresDismissed, setSimilaresDismissed] = useState(false)
+  const [fotosFiles, setFotosFiles] = useState<File[]>([])
+  const [fotosPreview, setFotosPreview] = useState<string[]>([])
+  const [fotosExistentes, setFotosExistentes] = useState<string[]>([])
+  const [uploadingFotos, setUploadingFotos] = useState(false)
   const lastGeoQuery = useRef('')
   const prevSimilaresKey = useRef('')
 
   const isEditing = !!initialData
+
+  useEffect(() => {
+    return () => { fotosPreview.forEach(URL.revokeObjectURL) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (initialData) {
@@ -57,6 +91,8 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
         ciudad: initialData.ciudad || '',
         pais: initialData.pais || '',
         tipo_apoyo: initialData.tipo_apoyo || [],
+        items_urgentes: initialData.items_urgentes || [],
+        items_necesarios: initialData.items_necesarios || [],
         que_recibe: initialData.que_recibe || '',
         contacto: initialData.contacto || '',
         link_inscripcion: initialData.link_inscripcion || '',
@@ -64,6 +100,7 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
         notas: initialData.notas || '',
         website: '',
       })
+      setFotosExistentes(initialData.fotos || [])
       if (initialData.lat && initialData.lng) {
         setLatLng({ lat: initialData.lat, lng: initialData.lng })
         setGeocodeStatus('ok')
@@ -82,6 +119,47 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
         ? p.tipo_apoyo.filter((t) => t !== tipo)
         : [...p.tipo_apoyo, tipo],
     }))
+
+  const toggleItem = (item: string) => {
+    setForm((p) => {
+      if (p.items_urgentes.includes(item)) {
+        return { ...p, items_urgentes: p.items_urgentes.filter((i) => i !== item) }
+      } else if (p.items_necesarios.includes(item)) {
+        return {
+          ...p,
+          items_necesarios: p.items_necesarios.filter((i) => i !== item),
+          items_urgentes: [...p.items_urgentes, item],
+        }
+      } else {
+        return { ...p, items_necesarios: [...p.items_necesarios, item] }
+      }
+    })
+  }
+
+  const totalFotos = fotosExistentes.length + fotosFiles.length
+
+  const handleFotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    const remaining = 5 - totalFotos
+    const valid = files
+      .filter((f) => f.size <= 5 * 1024 * 1024 && f.type.startsWith('image/'))
+      .slice(0, remaining)
+    if (valid.length === 0) return
+    setFotosFiles((prev) => [...prev, ...valid])
+    const previews = valid.map((f) => URL.createObjectURL(f))
+    setFotosPreview((prev) => [...prev, ...previews])
+    e.target.value = ''
+  }
+
+  const removeFoto = (index: number) => {
+    URL.revokeObjectURL(fotosPreview[index])
+    setFotosFiles((prev) => prev.filter((_, i) => i !== index))
+    setFotosPreview((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const removeExistingFoto = (index: number) => {
+    setFotosExistentes((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const buscarSimilares = useCallback((coordsOverride?: { lat: number; lng: number } | null) => {
     const coords = coordsOverride !== undefined ? coordsOverride : latLng
@@ -194,6 +272,8 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
       ciudad: form.ciudad.trim(),
       pais: form.pais.trim(),
       tipo_apoyo: form.tipo_apoyo,
+      items_urgentes: form.items_urgentes,
+      items_necesarios: form.items_necesarios,
       que_recibe: form.que_recibe.trim() || undefined,
       contacto: form.contacto.trim() || undefined,
       link_inscripcion: form.link_inscripcion.trim() || undefined,
@@ -204,7 +284,6 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let req = (supabase as any).from('puntos_ayuda')
-    
     if (isEditing && initialData) {
       req = req.update(payload).eq('id', initialData.id)
     } else {
@@ -212,7 +291,6 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
     }
 
     const { data, error: err } = await req.select().single()
-
     if (err) {
       console.error(err)
       setError(`Error al ${isEditing ? 'editar' : 'publicar'}. Intenta de nuevo.`)
@@ -220,7 +298,41 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
       return
     }
 
-    onPuntoAgregado(data as PuntoAyuda)
+    const punto = data as PuntoAyuda
+
+    // Subir / actualizar fotos
+    const fotosOriginales = initialData?.fotos ?? []
+    const removidas = fotosOriginales.filter((p) => !fotosExistentes.includes(p))
+    const hayFotosNuevas = fotosFiles.length > 0
+    const hayFotosEliminadas = removidas.length > 0
+
+    if (hayFotosNuevas || hayFotosEliminadas) {
+      setUploadingFotos(true)
+
+      if (hayFotosEliminadas) {
+        await supabase.storage.from('fotos-de-los-lugares').remove(removidas)
+      }
+
+      const newPaths: string[] = []
+      for (let i = 0; i < fotosFiles.length; i++) {
+        try {
+          const blob = await comprimirImagen(fotosFiles[i])
+          const path = `${punto.id}/${Date.now()}_${i}.jpg`
+          const { error: upErr } = await supabase.storage
+            .from('fotos-de-los-lugares')
+            .upload(path, blob, { contentType: 'image/jpeg' })
+          if (!upErr) newPaths.push(path)
+        } catch { /* continuar sin esta foto */ }
+      }
+
+      const allPaths = [...fotosExistentes, ...newPaths]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase as any).from('puntos_ayuda').update({ fotos: allPaths }).eq('id', punto.id)
+      punto.fotos = allPaths
+      setUploadingFotos(false)
+    }
+
+    onPuntoAgregado(punto)
   }
 
   return (
@@ -336,33 +448,33 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
 
           {/* Alerta de puntos similares */}
           {similares.length > 0 && !similaresDismissed && (
-            <div className="bg-amber-950/50 border border-amber-600/70 rounded-xl px-4 py-3">
+            <div className="bg-amber-50 border border-amber-300 rounded-xl px-4 py-3">
               <div className="flex items-start justify-between mb-1.5">
-                <p className="text-amber-300 text-sm font-semibold">
+                <p className="text-amber-900 text-sm font-semibold">
                   ⚠ Encontramos puntos similares
                 </p>
                 <button
                   type="button"
                   onClick={() => setSimilaresDismissed(true)}
-                  className="text-amber-500 hover:text-amber-300 text-xs underline ml-3 shrink-0 transition-colors"
+                  className="text-amber-700 hover:text-amber-900 text-xs underline ml-3 shrink-0 transition-colors"
                 >
                   Continuar de todas formas
                 </button>
               </div>
-              <p className="text-amber-400/70 text-xs mb-3">
+              <p className="text-amber-700 text-xs mb-3">
                 Verifica si ya existe uno antes de crear uno nuevo.
               </p>
               <div className="space-y-2">
                 {similares.map((p) => (
                   <div
                     key={p.id}
-                    className="bg-slate-800/80 rounded-lg px-3 py-2.5 flex items-center justify-between gap-3"
+                    className="bg-white border border-amber-200 rounded-lg px-3 py-2.5 flex items-center justify-between gap-3"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-white text-sm font-medium truncate">{p.nombre}</p>
-                      <p className="text-slate-400 text-xs truncate">{p.direccion}, {p.ciudad}</p>
+                      <p className="text-gray-900 text-sm font-medium truncate">{p.nombre}</p>
+                      <p className="text-gray-500 text-xs truncate">{p.direccion}, {p.ciudad}</p>
                       {p.tipo_apoyo.length > 0 && (
-                        <p className="text-amber-400/80 text-xs mt-0.5">
+                        <p className="text-amber-700 text-xs mt-0.5">
                           {p.tipo_apoyo.slice(0, 2).map((t) => `${TIPO_ICONS[t] ?? ''} ${t}`).join(' · ')}
                         </p>
                       )}
@@ -370,7 +482,7 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
                     <button
                       type="button"
                       onClick={() => onVerPunto(p)}
-                      className="shrink-0 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg transition-colors whitespace-nowrap"
+                      className="shrink-0 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg transition-colors whitespace-nowrap"
                     >
                       Ver punto
                     </button>
@@ -407,10 +519,42 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
             </div>
           </div>
 
+          {/* Ítems urgentes */}
+          <div>
+            <p className="text-gray-700 text-sm font-semibold mb-1">
+              ¿Qué ítems necesita? <span className="text-gray-400 font-normal">(opcional)</span>
+            </p>
+            <p className="text-gray-500 text-xs mb-2.5">
+              1 clic = 🟡 Necesario · 2 clics = 🔴 Urgente · 3 clics = quitar
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {ITEMS_AYUDA.map((item) => {
+                const esUrgente = form.items_urgentes.includes(item)
+                const esNecesario = form.items_necesarios.includes(item)
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => toggleItem(item)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                      esUrgente
+                        ? 'bg-red-50 border-red-400 text-red-700'
+                        : esNecesario
+                        ? 'bg-amber-50 border-amber-400 text-amber-700'
+                        : 'bg-gray-100 border-gray-200 text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    {esUrgente ? '🔴' : esNecesario ? '🟡' : ''} {item}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           {/* Qué recibe */}
           <div>
             <label htmlFor="f-recibe" className="block text-gray-700 text-sm font-semibold mb-1.5">
-              ¿Qué recibe o necesita? <span className="text-gray-400 font-normal">(opcional)</span>
+              ¿Qué recibe o necesita? <span className="text-gray-400 font-normal">(descripción libre, opcional)</span>
             </label>
             <textarea
               id="f-recibe" value={form.que_recibe} maxLength={500} rows={2}
@@ -472,6 +616,66 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
             />
           </div>
 
+          {/* Fotos */}
+          <div>
+            <p className="text-gray-700 text-sm font-semibold mb-1.5">
+              Fotos del lugar <span className="text-gray-400 font-normal">(opcional, máx. 5)</span>
+            </p>
+
+            {/* Fotos existentes (modo edición) */}
+            {isEditing && fotosExistentes.length > 0 && (
+              <div className="flex gap-2 flex-wrap mb-2">
+                {fotosExistentes.map((path, i) => (
+                  <div key={path} className="relative">
+                    <img
+                      src={fotoUrl(path)} alt=""
+                      className="h-20 w-20 object-cover rounded-lg border border-gray-200"
+                      loading="lazy"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingFoto(i)}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs flex items-center justify-center leading-none transition-colors"
+                      aria-label="Quitar foto"
+                    >✕</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Fotos nuevas (vista previa) */}
+            {fotosPreview.length > 0 && (
+              <div className="flex gap-2 flex-wrap mb-2">
+                {fotosPreview.map((url, i) => (
+                  <div key={i} className="relative">
+                    <img src={url} alt="" className="h-20 w-20 object-cover rounded-lg border border-blue-300 ring-1 ring-blue-400" />
+                    <button
+                      type="button"
+                      onClick={() => removeFoto(i)}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs flex items-center justify-center leading-none transition-colors"
+                      aria-label="Quitar foto nueva"
+                    >✕</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Botón para agregar más */}
+            {totalFotos < 5 && (
+              <label className="flex flex-col items-center gap-1.5 py-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors">
+                <span className="text-2xl">📷</span>
+                <span className="text-sm text-gray-600 font-medium">
+                  {totalFotos === 0 ? 'Agregar fotos' : 'Agregar más fotos'}
+                </span>
+                <span className="text-xs text-gray-400">Máx. 5MB por foto · jpg, png, webp · quedan {5 - totalFotos}</span>
+                <input
+                  type="file" accept="image/*" multiple className="sr-only"
+                  onChange={handleFotoSelect}
+                />
+              </label>
+            )}
+          </div>
+
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
               <p className="text-red-700 text-sm font-medium">{error}</p>
@@ -489,7 +693,7 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
             {submitting ? (
               <>
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Guardando...
+                {uploadingFotos ? 'Subiendo fotos...' : 'Guardando...'}
               </>
             ) : (
               isEditing ? '💾 Guardar Cambios' : '🚀 Publicar Punto'

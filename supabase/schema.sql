@@ -59,3 +59,10 @@ create policy "Actualización pública"
 -- ── Realtime ─────────────────────────────────────────────────
 -- Ejecutar en SQL Editor de Supabase:
 alter publication supabase_realtime add table public.puntos_ayuda;
+
+-- ── Migración: ítems urgentes + fotos (agosto 2026) ──────────
+-- Ejecutar en SQL Editor de Supabase si el proyecto ya está desplegado:
+alter table public.puntos_ayuda
+  add column if not exists items_urgentes  text[] default '{}',
+  add column if not exists items_necesarios text[] default '{}',
+  add column if not exists fotos           text[]  default '{}';

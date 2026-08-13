@@ -23,6 +23,8 @@ export interface PuntoAyuda {
   lat: number | null
   lng: number | null
   tipo_apoyo: string[]
+  items_urgentes: string[] | null
+  items_necesarios: string[] | null
   que_recibe: string | null
   estado: Estado
   contacto: string | null
@@ -30,6 +32,7 @@ export interface PuntoAyuda {
   horario: string | null
   notas: string | null
   instagram: string | null
+  fotos: string[] | null
   creado_en: string
   actualizado_en: string
   distanciaKm?: number
@@ -44,11 +47,14 @@ export interface NuevoPunto {
   lat?: number
   lng?: number
   tipo_apoyo: string[]
+  items_urgentes?: string[]
+  items_necesarios?: string[]
   que_recibe?: string
   contacto?: string
   link_inscripcion?: string
   horario?: string
   notas?: string
+  fotos?: string[]
 }
 
 export interface FiltrosMapa {
@@ -71,6 +77,21 @@ export interface Database {
     }
   }
 }
+
+export const ITEMS_AYUDA = [
+  'Agua potable',
+  'Alimentos',
+  'Cobijas / colchonetas',
+  'Generador eléctrico',
+  'Medicamentos',
+  'Voluntarios médicos',
+  'Rescatistas',
+  'Ropa',
+  'Pañales',
+  'Kit de higiene',
+] as const
+
+export type ItemAyuda = typeof ITEMS_AYUDA[number]
 
 export const TIPOS_APOYO: TipoApoyo[] | string[] = [
   'Voluntariado en sitio',

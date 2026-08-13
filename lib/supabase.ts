@@ -15,3 +15,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     params: { eventsPerSecond: 10 },
   },
 })
+
+export function fotoUrl(path: string): string {
+  return supabase.storage.from('fotos-de-los-lugares').getPublicUrl(path).data.publicUrl
+}
