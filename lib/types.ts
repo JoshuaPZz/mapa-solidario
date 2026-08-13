@@ -52,9 +52,11 @@ export interface NuevoPunto {
 }
 
 export interface FiltrosMapa {
+  busqueda: string
   ciudad: string
   radio: number | null // km, null = ver todos
   estado: Estado | 'todos'
+  tipoApoyo: string | 'todos'
 }
 
 // Supabase Database type
@@ -70,10 +72,11 @@ export interface Database {
   }
 }
 
-export const TIPOS_APOYO: TipoApoyo[] = [
+export const TIPOS_APOYO: TipoApoyo[] | string[] = [
   'Voluntariado en sitio',
   'Organizar donaciones',
   'Entregar donaciones',
+  'Donar insumos',
   'Recibe víveres',
   'Recibe ropa',
   'Recibe agua',
@@ -85,6 +88,7 @@ export const TIPO_ICONS: Record<string, string> = {
   'Voluntariado en sitio': '🙋',
   'Organizar donaciones': '📦',
   'Entregar donaciones': '🎁',
+  'Donar insumos': '🛒',
   'Recibe víveres': '🥫',
   'Recibe ropa': '👕',
   'Recibe agua': '💧',

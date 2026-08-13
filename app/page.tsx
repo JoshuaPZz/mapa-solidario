@@ -29,9 +29,11 @@ export default function HomePage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [ciudades, setCiudades] = useState<string[]>([])
   const [filtros, setFiltros] = useState<FiltrosMapa>({
+    busqueda: '',
     ciudad: 'todas',
     radio: null,
     estado: 'todos',
+    tipoApoyo: 'todos',
   })
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [realtimeConnected, setRealtimeConnected] = useState(false)
@@ -148,9 +150,21 @@ export default function HomePage() {
     if (filtros.estado !== 'todos') {
       result = result.filter((p) => p.estado === filtros.estado)
     }
+    if (filtros.tipoApoyo !== 'todos') {
+      result = result.filter((p) => p.tipo_apoyo?.includes(filtros.tipoApoyo))
+    }
     if (filtros.ciudad !== 'todas') {
       result = result.filter(
         (p) => p.ciudad.toLowerCase().trim() === filtros.ciudad.toLowerCase().trim()
+      )
+    }
+    if (filtros.busqueda.trim() !== '') {
+      const q = filtros.busqueda.toLowerCase().trim()
+      result = result.filter((p) => 
+        p.nombre.toLowerCase().includes(q) || 
+        p.direccion?.toLowerCase().includes(q) ||
+        p.que_recibe?.toLowerCase().includes(q) ||
+        p.notas?.toLowerCase().includes(q)
       )
     }
     if (filtros.radio !== null && userLocation) {
