@@ -37,6 +37,7 @@ export default function HomePage() {
   const [realtimeConnected, setRealtimeConnected] = useState(false)
   const [currentView, setCurrentView] = useState<'list' | 'map'>('list')
   const [mapTarget, setMapTarget] = useState<PuntoAyuda | null>(null)
+  const [editingPoint, setEditingPoint] = useState<PuntoAyuda | null>(null)
 
   // Cargar puntos iniciales
   const cargarPuntos = useCallback(async () => {
@@ -110,6 +111,7 @@ export default function HomePage() {
   const handlePuntoAgregado = (nuevo: PuntoAyuda) => {
     setPuntos((prev) => prev.find((p) => p.id === nuevo.id) ? prev : [nuevo, ...prev])
     setShowAddModal(false)
+    setEditingPoint(null)
   }
 
   const handleEstadoCambiado = async (id: string, nuevoEstado: 'necesita_apoyo' | 'cubierto') => {
@@ -181,6 +183,7 @@ export default function HomePage() {
             puntos={visibles}
             onVerEnMapa={handleVerEnMapa}
             onCambiarEstado={handleEstadoCambiado}
+            onEditPunto={setEditingPoint}
           />
         ) : (
           <MapComponent
@@ -189,14 +192,19 @@ export default function HomePage() {
             userLocation={userLocation}
             onEstadoCambiado={handleEstadoCambiado}
             targetPunto={mapTarget}
+            onEditPunto={setEditingPoint}
           />
         )}
       </div>
 
-      {showAddModal && (
+      {(showAddModal || editingPoint) && (
         <AddPointModal
-          onClose={() => setShowAddModal(false)}
+          onClose={() => {
+            setShowAddModal(false)
+            setEditingPoint(null)
+          }}
           onPuntoAgregado={handlePuntoAgregado}
+          initialData={editingPoint}
         />
       )}
     </main>

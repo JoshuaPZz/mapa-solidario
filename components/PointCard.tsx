@@ -9,9 +9,10 @@ interface PointCardProps {
   punto: PuntoAyuda
   onVerEnMapa?: (punto: PuntoAyuda) => void
   onCambiarEstado?: (id: string, nuevoEstado: 'necesita_apoyo' | 'cubierto') => void
+  onEditPunto?: (punto: PuntoAyuda) => void
 }
 
-export default function PointCard({ punto, onVerEnMapa, onCambiarEstado }: PointCardProps) {
+export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditPunto }: PointCardProps) {
   const isCubierto = punto.estado === 'cubierto'
 
   return (
@@ -118,9 +119,29 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado }: Point
         </div>
         
         <div className="flex flex-wrap w-full xl:w-auto items-center justify-start xl:justify-end gap-2">
+          {onEditPunto && (
+            <button
+              onClick={() => {
+                const confirmMsg = "ADVERTENCIA DE RESPONSABILIDAD:\n\nVas a editar información pública. Por favor, asegúrate de que la información sea verídica. Falsificar datos perjudica la ayuda.\n\n¿Deseas continuar a la edición?";
+                if (window.confirm(confirmMsg)) {
+                  onEditPunto(punto);
+                }
+              }}
+              className="flex-1 sm:flex-none px-3 py-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-1.5"
+            >
+              <span>✏️</span> Editar info
+            </button>
+          )}
+
           {onCambiarEstado && (
             <button
-              onClick={() => onCambiarEstado(punto.id, isCubierto ? 'necesita_apoyo' : 'cubierto')}
+              onClick={() => {
+                const nuevoEstado = isCubierto ? 'necesita_apoyo' : 'cubierto';
+                const confirmMsg = "ADVERTENCIA DE RESPONSABILIDAD:\n\nEstás a punto de reportar el estado de este punto.\nReportes falsos retrasan el rescate y las ayudas a quienes lo necesitan.\n\n¿Estás 100% seguro de tu reporte?";
+                if (window.confirm(confirmMsg)) {
+                  onCambiarEstado(punto.id, nuevoEstado);
+                }
+              }}
               className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold transition-colors border ${
                 isCubierto 
                   ? 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50' 
