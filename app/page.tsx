@@ -76,7 +76,7 @@ export default function HomePage() {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'puntos_ayuda' },
-        (payload) => {
+        (payload: any) => {
           const nuevo = payload.new as PuntoAyuda
           setPuntos((prev) => [nuevo, ...prev])
           setCiudades((prev) =>
@@ -87,7 +87,7 @@ export default function HomePage() {
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'puntos_ayuda' },
-        (payload) => {
+        (payload: any) => {
           setPuntos((prev) =>
             prev.map((p) => (p.id === payload.new.id ? { ...p, ...payload.new } as PuntoAyuda : p))
           )
@@ -96,11 +96,11 @@ export default function HomePage() {
       .on(
         'postgres_changes',
         { event: 'DELETE', schema: 'public', table: 'puntos_ayuda' },
-        (payload) => {
+        (payload: any) => {
           setPuntos((prev) => prev.filter((p) => p.id !== payload.old.id))
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: any) => {
         setRealtimeConnected(status === 'SUBSCRIBED')
       })
 

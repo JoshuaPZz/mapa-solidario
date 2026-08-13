@@ -32,6 +32,7 @@ export interface PuntoAyuda {
   instagram: string | null
   creado_en: string
   actualizado_en: string
+  distanciaKm?: number
 }
 
 export interface NuevoPunto {
