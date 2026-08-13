@@ -7,6 +7,9 @@ import type { PuntoAyuda, FiltrosMapa } from '@/lib/types'
 import FilterBar from '@/components/FilterBar'
 import AddPointModal from '@/components/AddPointModal'
 
+import FeedView from '@/components/FeedView'
+import { filtrarPorRadio } from '@/lib/haversine'
+
 // Leaflet solo se renderiza en el cliente (no SSR)
 const MapComponent = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -32,6 +35,8 @@ export default function HomePage() {
   })
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [realtimeConnected, setRealtimeConnected] = useState(false)
+  const [currentView, setCurrentView] = useState<'list' | 'map'>('list')
+  const [mapTarget, setMapTarget] = useState<PuntoAyuda | null>(null)
 
   // Cargar puntos iniciales
   const cargarPuntos = useCallback(async () => {
@@ -116,6 +121,31 @@ export default function HomePage() {
     if (error) console.error('Error actualizando estado:', error)
   }
 
+  const handleVerEnMapa = (punto: PuntoAyuda) => {
+    setMapTarget(punto)
+    setCurrentView('map')
+  }
+
+  const puntosFiltrados = useCallback(() => {
+    let result = puntos
+
+    if (filtros.estado !== 'todos') {
+      result = result.filter((p) => p.estado === filtros.estado)
+    }
+    if (filtros.ciudad !== 'todas') {
+      result = result.filter(
+        (p) => p.ciudad.toLowerCase().trim() === filtros.ciudad.toLowerCase().trim()
+      )
+    }
+    if (filtros.radio !== null && userLocation) {
+      result = filtrarPorRadio(result, userLocation.lat, userLocation.lng, filtros.radio)
+    }
+
+    return result
+  }, [puntos, filtros, userLocation])
+
+  const visibles = puntosFiltrados()
+
   return (
     <main className="h-screen w-screen flex flex-col overflow-hidden bg-slate-950">
       <FilterBar
@@ -123,24 +153,33 @@ export default function HomePage() {
         onFiltrosChange={setFiltros}
         ciudades={ciudades}
         realtimeConnected={realtimeConnected}
-        totalPuntos={puntos.length}
+        totalPuntos={visibles.length}
         onAddClick={() => setShowAddModal(true)}
+        currentView={currentView}
+        onViewChange={setCurrentView}
       />
 
-      <div className="flex-1 relative">
+      <div className="flex-1 relative overflow-y-auto">
         {loading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-950 z-10">
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-white text-lg">Cargando puntos...</p>
+              <p className="text-white text-lg font-medium">Cargando datos...</p>
             </div>
           </div>
+        ) : currentView === 'list' ? (
+          <FeedView
+            puntos={visibles}
+            onVerEnMapa={handleVerEnMapa}
+            onCambiarEstado={handleEstadoCambiado}
+          />
         ) : (
           <MapComponent
-            puntos={puntos}
+            puntos={visibles}
             filtros={filtros}
             userLocation={userLocation}
             onEstadoCambiado={handleEstadoCambiado}
+            targetPunto={mapTarget}
           />
         )}
       </div>

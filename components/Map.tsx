@@ -55,6 +55,16 @@ function CenterOnUser({ userLocation }: { userLocation: { lat: number; lng: numb
   return null
 }
 
+function FocusTargetPunto({ targetPunto }: { targetPunto?: PuntoAyuda | null }) {
+  const map = useMap()
+  useEffect(() => {
+    if (targetPunto && targetPunto.lat && targetPunto.lng) {
+      map.setView([targetPunto.lat, targetPunto.lng], 16, { animate: true })
+    }
+  }, [targetPunto, map])
+  return null
+}
+
 function ZoomControls() {
   const map = useMap()
   return (
@@ -78,30 +88,19 @@ interface MapProps {
   filtros: FiltrosMapa
   userLocation: { lat: number; lng: number } | null
   onEstadoCambiado: (id: string, estado: 'necesita_apoyo' | 'cubierto') => void
+  targetPunto?: PuntoAyuda | null
 }
 
-export default function Map({ puntos, filtros, userLocation, onEstadoCambiado }: MapProps) {
+export default function Map({ puntos, filtros, userLocation, onEstadoCambiado, targetPunto }: MapProps) {
   const [selectedPunto, setSelectedPunto] = useState<PuntoAyuda | null>(null)
 
-  const puntosFiltrados = useCallback(() => {
-    let result = puntos.filter((p) => p.lat !== null && p.lng !== null)
-
-    if (filtros.estado !== 'todos') {
-      result = result.filter((p) => p.estado === filtros.estado)
+  useEffect(() => {
+    if (targetPunto) {
+      setSelectedPunto(targetPunto)
     }
-    if (filtros.ciudad !== 'todas') {
-      result = result.filter(
-        (p) => p.ciudad.toLowerCase().trim() === filtros.ciudad.toLowerCase().trim()
-      )
-    }
-    if (filtros.radio !== null && userLocation) {
-      result = filtrarPorRadio(result, userLocation.lat, userLocation.lng, filtros.radio)
-    }
+  }, [targetPunto])
 
-    return result
-  }, [puntos, filtros, userLocation])
-
-  const visibles = puntosFiltrados()
+  const visibles = puntos.filter((p) => p.lat !== null && p.lng !== null)
 
   // Marcador de ubicación del usuario
   const userIcon = L.divIcon({
@@ -125,6 +124,7 @@ export default function Map({ puntos, filtros, userLocation, onEstadoCambiado }:
         />
 
         <CenterOnUser userLocation={userLocation} />
+        <FocusTargetPunto targetPunto={targetPunto} />
         <ZoomControls />
 
         {/* Ubicación del usuario */}
