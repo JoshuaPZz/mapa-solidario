@@ -17,6 +17,14 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado }: Point
   return (
     <div className={`relative flex flex-col bg-white border rounded-xl p-5 shadow-sm transition-all duration-300 hover:shadow-md ${isCubierto ? 'border-green-200 bg-green-50/30' : 'border-gray-200 hover:border-red-200'}`}>
       
+      {/* Banner decorativo tipo imagen */}
+      <div className="h-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl -mx-5 -mt-5 mb-4 border-b border-gray-200 flex items-center justify-center overflow-hidden relative">
+        <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <span className="text-5xl opacity-40 mix-blend-multiply filter grayscale drop-shadow-sm transition-transform hover:scale-110">
+          {TIPO_ICONS[punto.tipo_apoyo[0]] || '📍'}
+        </span>
+      </div>
+
       {/* Header: Title and Status Badge */}
       <div className="flex justify-between items-start gap-4 mb-3">
         <h3 className="text-xl font-bold text-gray-900 leading-tight">
@@ -99,8 +107,8 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado }: Point
       </div>
 
       {/* Footer / Actions */}
-      <div className="mt-auto flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-        <div className="text-xs text-gray-500 w-full sm:w-auto text-left">
+      <div className="mt-auto flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 pt-4 border-t border-gray-100">
+        <div className="text-xs text-gray-500 w-full xl:w-auto text-left">
           Actualizado hace {formatDistanceToNow(new Date(punto.actualizado_en), { addSuffix: false, locale: es })}
           {punto.reportes_cubierto !== undefined && punto.reportes_cubierto > 0 && !isCubierto && (
             <span className="block mt-1 text-orange-600 font-medium">
@@ -109,7 +117,7 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado }: Point
           )}
         </div>
         
-        <div className="flex w-full sm:w-auto items-center gap-3">
+        <div className="flex flex-wrap w-full xl:w-auto items-center justify-start xl:justify-end gap-2">
           {onCambiarEstado && (
             <button
               onClick={() => onCambiarEstado(punto.id, isCubierto ? 'necesita_apoyo' : 'cubierto')}
