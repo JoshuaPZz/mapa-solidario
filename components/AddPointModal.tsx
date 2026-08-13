@@ -4,11 +4,14 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { PuntoAyuda, NuevoPunto } from '@/lib/types'
 import { TIPOS_APOYO, TIPO_ICONS } from '@/lib/types'
+import { haversineKm } from '@/lib/haversine'
 
 interface AddPointModalProps {
   onClose: () => void
   onPuntoAgregado: (punto: PuntoAyuda) => void
   initialData?: PuntoAyuda | null
+  puntos: PuntoAyuda[]
+  onVerPunto: (punto: PuntoAyuda) => void
 }
 
 interface FormState {
@@ -31,7 +34,7 @@ const EMPTY: FormState = {
   link_inscripcion: '', horario: '', notas: '', website: '',
 }
 
-export default function AddPointModal({ onClose, onPuntoAgregado, initialData }: AddPointModalProps) {
+export default function AddPointModal({ onClose, onPuntoAgregado, initialData, puntos, onVerPunto }: AddPointModalProps) {
   const [form, setForm] = useState<FormState>(EMPTY)
   const [geocoding, setGeocoding] = useState(false)
   const [geocodeStatus, setGeocodeStatus] = useState<'idle' | 'ok' | 'error'>('idle')
@@ -39,7 +42,10 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData }:
   const [latLng, setLatLng] = useState<{ lat: number; lng: number } | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [similares, setSimilares] = useState<PuntoAyuda[]>([])
+  const [similaresDismissed, setSimilaresDismissed] = useState(false)
   const lastGeoQuery = useRef('')
+  const prevSimilaresKey = useRef('')
 
   const isEditing = !!initialData
 
@@ -77,6 +83,43 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData }:
         : [...p.tipo_apoyo, tipo],
     }))
 
+  const buscarSimilares = useCallback((coordsOverride?: { lat: number; lng: number } | null) => {
+    const coords = coordsOverride !== undefined ? coordsOverride : latLng
+    const normStr = (s: string) => s.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim()
+    const normalizedDir = normStr(form.direccion)
+    const normalizedNombre = normStr(form.nombre)
+    const normalizedCiudad = form.ciudad.toLowerCase().trim()
+
+    const found = puntos.filter((punto) => {
+      if (initialData && punto.id === initialData.id) return false
+      // 1. Proximidad geográfica (< 200m)
+      if (coords && punto.lat && punto.lng) {
+        if (haversineKm(coords.lat, coords.lng, punto.lat, punto.lng) < 0.2) return true
+      }
+      // 2. Misma dirección + ciudad (normalizado)
+      if (
+        normalizedDir.length > 5 &&
+        normStr(punto.direccion) === normalizedDir &&
+        punto.ciudad.toLowerCase().trim() === normalizedCiudad
+      ) return true
+      // 3. Nombre similar + misma ciudad
+      if (
+        normalizedNombre.length > 4 &&
+        punto.ciudad.toLowerCase().trim() === normalizedCiudad &&
+        (normStr(punto.nombre).includes(normalizedNombre) ||
+          normalizedNombre.includes(normStr(punto.nombre)))
+      ) return true
+      return false
+    })
+
+    const newKey = found.map((p) => p.id).sort().join(',')
+    if (newKey !== prevSimilaresKey.current) {
+      prevSimilaresKey.current = newKey
+      setSimilares(found.slice(0, 3))
+      if (found.length > 0) setSimilaresDismissed(false)
+    }
+  }, [puntos, form.direccion, form.nombre, form.ciudad, latLng])
+
   const geocodificar = useCallback(async () => {
     const query = [form.direccion, form.ciudad, form.pais].filter(Boolean).join(', ')
     if (!query.trim() || query === lastGeoQuery.current) return
@@ -87,13 +130,16 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData }:
       const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`)
       const data = await res.json()
       if (Array.isArray(data) && data.length > 0) {
-        setLatLng({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) })
+        const newCoords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }
+        setLatLng(newCoords)
         setGeocodeStatus('ok')
-        setGeocodeMsg(`Ubicación encontrada: ${parseFloat(data[0].lat).toFixed(4)}, ${parseFloat(data[0].lon).toFixed(4)}`)
+        setGeocodeMsg(`Ubicación encontrada: ${newCoords.lat.toFixed(4)}, ${newCoords.lng.toFixed(4)}`)
+        buscarSimilares(newCoords)
       } else {
         setGeocodeStatus('error')
         setGeocodeMsg('No se encontró la dirección exacta. Se guardará sin mapa.')
         setLatLng(null)
+        buscarSimilares(null)
       }
     } catch {
       setGeocodeStatus('error')
@@ -101,7 +147,7 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData }:
     } finally {
       setGeocoding(false)
     }
-  }, [form.direccion, form.ciudad, form.pais])
+  }, [form.direccion, form.ciudad, form.pais, buscarSimilares])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -112,6 +158,10 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData }:
     }
     if (form.tipo_apoyo.length === 0) {
       setError('Selecciona al menos un tipo de apoyo.')
+      return
+    }
+    if (similares.length > 0 && !similaresDismissed) {
+      setError('Hay puntos similares arriba. Revísalos o haz clic en "Continuar de todas formas".')
       return
     }
 
@@ -225,6 +275,7 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData }:
             <input
               id="f-nombre" type="text" value={form.nombre} required maxLength={200}
               onChange={(e) => set('nombre', e.target.value)}
+              onBlur={() => buscarSimilares()}
               placeholder="ej: Centro de acopio Parroquia San Francisco"
               className="w-full bg-white text-gray-900 rounded-lg px-4 py-2.5 border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-400 text-sm transition-colors shadow-sm"
             />
@@ -282,6 +333,52 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData }:
               <p className="text-orange-600 text-xs mt-1.5 font-medium">⚠️ {geocodeMsg}</p>
             )}
           </div>
+
+          {/* Alerta de puntos similares */}
+          {similares.length > 0 && !similaresDismissed && (
+            <div className="bg-amber-950/50 border border-amber-600/70 rounded-xl px-4 py-3">
+              <div className="flex items-start justify-between mb-1.5">
+                <p className="text-amber-300 text-sm font-semibold">
+                  ⚠ Encontramos puntos similares
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setSimilaresDismissed(true)}
+                  className="text-amber-500 hover:text-amber-300 text-xs underline ml-3 shrink-0 transition-colors"
+                >
+                  Continuar de todas formas
+                </button>
+              </div>
+              <p className="text-amber-400/70 text-xs mb-3">
+                Verifica si ya existe uno antes de crear uno nuevo.
+              </p>
+              <div className="space-y-2">
+                {similares.map((p) => (
+                  <div
+                    key={p.id}
+                    className="bg-slate-800/80 rounded-lg px-3 py-2.5 flex items-center justify-between gap-3"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-white text-sm font-medium truncate">{p.nombre}</p>
+                      <p className="text-slate-400 text-xs truncate">{p.direccion}, {p.ciudad}</p>
+                      {p.tipo_apoyo.length > 0 && (
+                        <p className="text-amber-400/80 text-xs mt-0.5">
+                          {p.tipo_apoyo.slice(0, 2).map((t) => `${TIPO_ICONS[t] ?? ''} ${t}`).join(' · ')}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onVerPunto(p)}
+                      className="shrink-0 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg transition-colors whitespace-nowrap"
+                    >
+                      Ver punto
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Tipo apoyo */}
           <div>

@@ -137,6 +137,11 @@ export default function HomePage() {
     setCurrentView('map')
   }
 
+  const handleVerPuntoExistente = (punto: PuntoAyuda) => {
+    setShowAddModal(false)
+    handleVerEnMapa(punto)
+  }
+
   const puntosFiltrados = useCallback(() => {
     let result = puntos
 
@@ -205,6 +210,8 @@ export default function HomePage() {
           }}
           onPuntoAgregado={handlePuntoAgregado}
           initialData={editingPoint}
+          puntos={puntos}
+          onVerPunto={handleVerPuntoExistente}
         />
       )}
     </main>
