@@ -108,12 +108,6 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
               <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">{punto.horario}</p>
             </div>
           )}
-          {punto.contacto && (
-            <div>
-              <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Contacto</p>
-              <p className="text-sm text-gray-800 break-words whitespace-pre-wrap">{punto.contacto}</p>
-            </div>
-          )}
         </div>
 
         {punto.notas && (
@@ -123,21 +117,52 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
           </div>
         )}
 
-        {/* Enlaces */}
-        {(punto.instagram || punto.link_inscripcion) && (
-          <div className="flex flex-wrap gap-3 pt-2">
-            {punto.instagram && (
-              <a href={punto.instagram} target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-500 text-xs font-semibold underline underline-offset-2">
-                Instagram ↗
-              </a>
-            )}
-            {punto.link_inscripcion && (
-              <a href={punto.link_inscripcion.startsWith('http') ? punto.link_inscripcion : '#'} target={punto.link_inscripcion.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" className="text-blue-600 hover:text-blue-500 text-xs font-semibold underline underline-offset-2">
-                {punto.link_inscripcion.startsWith('http') ? 'Link inscripción ↗' : punto.link_inscripcion}
-              </a>
-            )}
-          </div>
-        )}
+        {/* Enlaces / Botones de acción */}
+        <div className="flex flex-wrap gap-2 pt-2">
+          {/* Cómo llegar */}
+          <a
+            href={punto.lat && punto.lng ? `https://www.google.com/maps?q=${punto.lat},${punto.lng}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([punto.direccion, punto.ciudad, punto.pais].filter(Boolean).join(', '))}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors hover:bg-red-100"
+          >
+            <span>📍</span> Cómo llegar
+          </a>
+          
+          {/* Instagram */}
+          {punto.instagram && (
+            <a
+              href={punto.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 bg-[#0A2351] text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#113377]"
+            >
+              <span>📷</span> Instagram
+            </a>
+          )}
+
+          {/* Contacto (Teléfono) */}
+          {punto.contacto && (
+            <a
+              href={`tel:${punto.contacto.replace(/[^0-9+]/g, '')}`}
+              className="flex items-center gap-1.5 bg-white text-emerald-700 border border-gray-200 shadow-sm px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors hover:bg-gray-50"
+            >
+              <span className="text-emerald-600">📞</span> {punto.contacto}
+            </a>
+          )}
+
+          {/* Link Inscripción */}
+          {punto.link_inscripcion && (
+            <a
+              href={punto.link_inscripcion.startsWith('http') ? punto.link_inscripcion : '#'}
+              target={punto.link_inscripcion.startsWith('http') ? '_blank' : undefined}
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 bg-white text-blue-700 border border-gray-200 shadow-sm px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors hover:bg-gray-50"
+            >
+              <span>📝</span> {punto.link_inscripcion.startsWith('http') ? 'Inscripción' : punto.link_inscripcion}
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Footer / Actions */}

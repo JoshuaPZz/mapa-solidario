@@ -99,20 +99,7 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
           </div>
         )}
 
-        {/* Dirección → Google Maps */}
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-start gap-2.5 rounded-lg hover:bg-blue-50 transition-colors group -mx-1.5 px-1.5 py-1"
-        >
-          <span className="text-lg shrink-0 mt-0.5">📍</span>
-          <div>
-            <p className="text-gray-900 text-sm font-medium group-hover:text-blue-600 transition-colors">{punto.direccion}</p>
-            <p className="text-gray-500 text-xs">{punto.ciudad}, {punto.pais}</p>
-            <p className="text-blue-500 text-xs mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">Abrir en Google Maps →</p>
-          </div>
-        </a>
+        {/* Dirección → Google Maps (ocultado para usar botón unificado abajo si quieres, pero lo dejo aquí más sutil o lo borramos, lo borramos para no duplicar) */}
 
         {/* Tipos de apoyo */}
         {punto.tipo_apoyo?.length > 0 && (
@@ -184,52 +171,52 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
           </div>
         )}
 
-        {/* Inscripción */}
-        {punto.link_inscripcion && (
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
-            <p className="text-blue-700 text-xs font-semibold uppercase tracking-wide mb-1.5">
-              📝 Inscripción requerida
-            </p>
-            {isUrl(punto.link_inscripcion) ? (
-              <a
-                href={punto.link_inscripcion}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-500 text-sm font-semibold underline break-all transition-colors"
-              >
-                Inscríbete aquí →
-              </a>
-            ) : (
-              <p className="text-blue-800 text-sm break-words whitespace-pre-wrap">{punto.link_inscripcion}</p>
-            )}
-          </div>
-        )}
-
-        {/* Contacto */}
-        {punto.contacto && (
-          <div className="flex items-start gap-2.5">
-            <span className="text-lg shrink-0">📞</span>
-            <div>
-              <p className="text-gray-500 text-xs font-semibold uppercase tracking-wide">Contacto</p>
-              <p className="text-gray-800 text-sm break-words whitespace-pre-wrap">{punto.contacto}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Instagram */}
-        {punto.instagram && (
-          <div className="flex items-center gap-2.5">
-            <span className="text-lg">📱</span>
+        {/* Botones de Acción Estilizados */}
+        <div className="flex flex-wrap gap-2 pt-2">
+          {/* Cómo llegar */}
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded-lg text-sm font-semibold transition-colors hover:bg-red-100 shadow-sm"
+          >
+            <span>📍</span> Cómo llegar
+          </a>
+          
+          {/* Instagram */}
+          {punto.instagram && (
             <a
               href={punto.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-pink-600 hover:text-pink-500 text-sm font-semibold transition-colors underline"
+              className="flex items-center gap-1.5 bg-[#0A2351] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors hover:bg-[#113377] shadow-sm"
             >
-              Ver en Instagram →
+              <span>📷</span> Instagram
             </a>
-          </div>
-        )}
+          )}
+
+          {/* Contacto (Teléfono) */}
+          {punto.contacto && (
+            <a
+              href={`tel:${punto.contacto.replace(/[^0-9+]/g, '')}`}
+              className="flex items-center gap-1.5 bg-white text-emerald-700 border border-gray-200 shadow-sm px-4 py-2 rounded-lg text-sm font-semibold transition-colors hover:bg-gray-50"
+            >
+              <span className="text-emerald-600">📞</span> {punto.contacto}
+            </a>
+          )}
+
+          {/* Link Inscripción */}
+          {punto.link_inscripcion && (
+            <a
+              href={punto.link_inscripcion.startsWith('http') ? punto.link_inscripcion : '#'}
+              target={punto.link_inscripcion.startsWith('http') ? '_blank' : undefined}
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 bg-white text-blue-700 border border-gray-200 shadow-sm px-4 py-2 rounded-lg text-sm font-semibold transition-colors hover:bg-gray-50"
+            >
+              <span>📝</span> {punto.link_inscripcion.startsWith('http') ? 'Inscripción' : punto.link_inscripcion}
+            </a>
+          )}
+        </div>
 
         <div className="flex items-center justify-between pt-1">
           {onEditPunto && (
