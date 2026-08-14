@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 export default function WelcomeScreen() {
-  const [tab, setTab] = useState<'bienvenida' | 'sugerencias'>('bienvenida')
+  const [tab, setTab] = useState<'bienvenida' | 'tutorial' | 'sugerencias'>('bienvenida')
   const [collapsed, setCollapsed] = useState(false)
 
   if (collapsed) {
@@ -51,7 +51,7 @@ export default function WelcomeScreen() {
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
-        {(['bienvenida', 'sugerencias'] as const).map((t) => (
+        {(['bienvenida', 'tutorial', 'sugerencias'] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -61,7 +61,7 @@ export default function WelcomeScreen() {
                 : 'text-gray-500 border-transparent hover:text-gray-700'
             }`}
           >
-            {t === 'bienvenida' ? 'Bienvenida' : 'Sugerencias y contacto'}
+            {t === 'bienvenida' ? 'Bienvenida' : t === 'tutorial' ? 'Tutorial' : 'Sugerencias'}
           </button>
         ))}
       </div>
@@ -157,6 +157,108 @@ export default function WelcomeScreen() {
                 Puede que alguien lo necesite hoy.
               </p>
             </div>
+
+          </div>
+        ) : tab === 'tutorial' ? (
+          <div className="space-y-5">
+
+            <div>
+              <h2 className="text-gray-900 font-bold text-xl leading-snug">
+                Cómo usar el mapa
+              </h2>
+              <p className="text-gray-500 text-sm mt-2 leading-relaxed">
+                Todo lo que puedes hacer, explicado paso a paso.
+              </p>
+            </div>
+
+            {[
+              {
+                icon: '➕',
+                title: 'Agregar un punto de ayuda',
+                steps: [
+                  'Pulsa el botón "Agregar punto" en la barra superior.',
+                  'Completa el nombre, dirección y ciudad del lugar.',
+                  'Selecciona qué tipo de ayuda ofrece o necesita.',
+                  'Marca en el mapa la ubicación exacta arrastrando el pin.',
+                  'Sube hasta 5 fotos del lugar para que otros lo reconozcan.',
+                  'Publica. El punto aparece en tiempo real para todos.',
+                ],
+              },
+              {
+                icon: '✏️',
+                title: 'Editar información de un punto',
+                steps: [
+                  'Abre la tarjeta del punto que quieres corregir.',
+                  'Pulsa "Editar info" en la parte inferior.',
+                  'Acepta la advertencia de responsabilidad.',
+                  'Modifica lo que necesites: datos, fotos, ítems, horario.',
+                  'Guarda los cambios. Se actualiza al instante.',
+                ],
+              },
+              {
+                icon: '✅',
+                title: 'Reportar un punto como cubierto',
+                steps: [
+                  'Cuando un lugar ya no necesita ayuda, abre su tarjeta.',
+                  'Pulsa "Reportar como cubierto" y confirma.',
+                  'Con suficientes reportes, el punto pasa a estado cubierto.',
+                  'Esto redirige la ayuda a donde más se necesita.',
+                ],
+              },
+              {
+                icon: '🗺️',
+                title: 'Explorar el mapa interactivo',
+                steps: [
+                  'Cambia a la vista "Mapa" con el selector en la barra superior.',
+                  'Los puntos aparecen como marcadores de colores según su estado.',
+                  'Pulsa cualquier marcador para ver el detalle del punto.',
+                  'Usa los filtros para mostrar solo los puntos que te interesan.',
+                ],
+              },
+              {
+                icon: '📍',
+                title: 'Navegar a un punto con Google Maps',
+                steps: [
+                  'Abre la tarjeta o el popup de cualquier punto.',
+                  'Pulsa "Cómo llegar".',
+                  'Se abre Google Maps con la ruta lista desde tu ubicación.',
+                ],
+              },
+              {
+                icon: '🔍',
+                title: 'Buscar y filtrar puntos',
+                steps: [
+                  'Escribe en la barra de búsqueda para filtrar por nombre, dirección o necesidad.',
+                  'Usa el selector de tipo para ver solo acopio, voluntariado, etc.',
+                  'Filtra por ciudad si buscas puntos en un lugar específico.',
+                  'Activa tu ubicación y selecciona un radio (5 km, 10 km…) para ver los más cercanos.',
+                ],
+              },
+              {
+                icon: '📷',
+                title: 'Ver fotos de un punto',
+                steps: [
+                  'Abre el punto desde el mapa o en los puntos que tienen la opción ver en el mapa de la lista.',
+                  'Navega entre fotos con las flechas ‹ ›.',
+                  'Pulsa la foto para verla en pantalla completa.',
+                ],
+              },
+            ].map((section) => (
+              <div key={section.title} className="border border-gray-200 rounded-xl overflow-hidden">
+                <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-100">
+                  <span className="text-lg leading-none">{section.icon}</span>
+                  <p className="text-gray-900 text-sm font-semibold">{section.title}</p>
+                </div>
+                <ol className="px-4 py-3 space-y-1.5 list-none">
+                  {section.steps.map((step, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-gray-600">
+                      <span className="text-xs font-bold text-red-400 mt-0.5 shrink-0 w-4 text-right">{i + 1}.</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
 
           </div>
         ) : (

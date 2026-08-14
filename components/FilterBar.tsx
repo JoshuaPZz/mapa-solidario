@@ -52,43 +52,43 @@ export default function FilterBar({
       </div>
 
       {/* Fila 1: toggle + búsqueda + agregar */}
-      <div className="px-4 pt-3 pb-2 flex items-center gap-3">
+      <div className="px-4 pt-3 pb-2 flex items-center gap-2 sm:gap-3">
         <div className="flex bg-gray-100 rounded-lg p-1 border border-gray-200 shrink-0">
           <button
             onClick={() => onViewChange('list')}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+            className={`px-2.5 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
               currentView === 'list'
                 ? 'bg-white text-gray-900 shadow-sm border border-gray-200/60'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
             }`}
           >
-            📋 Lista
+            📋<span className="hidden sm:inline"> Lista</span>
           </button>
           <button
             onClick={() => onViewChange('map')}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
+            className={`px-2.5 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
               currentView === 'map'
                 ? 'bg-white text-gray-900 shadow-sm border border-gray-200/60'
                 : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
             }`}
           >
-            🗺️ Mapa
+            🗺️<span className="hidden sm:inline"> Mapa</span>
           </button>
         </div>
 
         <input
           type="text"
-          placeholder="Buscar lugares, necesidades..."
+          placeholder="Buscar..."
           value={filtros.busqueda || ''}
           onChange={(e) => update({ busqueda: e.target.value })}
-          className="flex-1 bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm"
+          className="flex-1 bg-white text-gray-900 text-sm rounded-lg px-3 py-2 border border-gray-300 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors shadow-sm min-w-0"
         />
 
         <button
           onClick={onAddClick}
-          className="shrink-0 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm px-4 sm:px-5 py-2 rounded-lg transition-all shadow-sm flex items-center gap-1.5"
+          className="shrink-0 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm rounded-lg transition-all shadow-sm flex items-center justify-center gap-1.5 w-10 h-10 sm:w-auto sm:h-auto sm:px-5 sm:py-2"
         >
-          <span className="text-base leading-none">＋</span>
+          <span className="text-lg sm:text-base leading-none">＋</span>
           <span className="hidden sm:inline">Agregar punto</span>
         </button>
       </div>
