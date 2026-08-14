@@ -176,7 +176,7 @@ export default function WelcomeScreen() {
                 icon: '➕',
                 title: 'Agregar un punto de ayuda',
                 steps: [
-                  'Pulsa el botón "Agregar punto" en la barra superior.',
+                  'Pulsa el botón "Agregar punto" (si estás en computador) o el botón + (si estás en celular) en la barra superior.',
                   'Completa el nombre, dirección y ciudad del lugar.',
                   'Selecciona qué tipo de ayuda ofrece o necesita.',
                   'Marca en el mapa la ubicación exacta arrastrando el pin.',
