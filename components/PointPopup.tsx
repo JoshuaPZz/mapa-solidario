@@ -171,15 +171,11 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
           </div>
         )}
 
-        {/* Notas */}
+        {/* Actualizaciones en vivo */}
         {punto.notas && (
-          <div>
-            <h4 className="text-sm font-semibold text-gray-900 mb-1.5 flex items-center gap-1.5">
-              <span>📌</span> Notas
-            </h4>
-            <div className="bg-amber-50 rounded-xl p-3 border border-amber-100">
-              <ExpandableText text={punto.notas} maxLength={250} className="text-amber-900 text-sm leading-relaxed" />
-            </div>
+          <div className="bg-amber-50 rounded-xl p-3 border border-amber-100">
+            <p className="text-amber-700 text-xs font-semibold uppercase tracking-wide mb-1.5">💬 Actualizaciones en vivo</p>
+            <ExpandableText text={punto.notas} maxLength={250} className="text-amber-900 text-sm leading-relaxed" />
           </div>
         )}
 

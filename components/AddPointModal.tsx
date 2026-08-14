@@ -640,17 +640,21 @@ export default function AddPointModal({ onClose, onPuntoAgregado, initialData, p
             </div>
           </div>
 
-          {/* Notas */}
+          {/* Notas / Actualizaciones en vivo */}
           <div>
             <label htmlFor="f-notas" className="block text-gray-700 text-sm font-semibold mb-1.5">
-              Notas adicionales <span className="text-gray-400 font-normal">(opcional)</span>
+              Actualizaciones en vivo <span className="text-gray-400 font-normal">(opcional)</span>
             </label>
             <textarea
-              id="f-notas" value={form.notas} maxLength={500} rows={2}
+              id="f-notas" value={form.notas} maxLength={500} rows={3}
               onChange={(e) => set('notas', e.target.value)}
-              placeholder="Cualquier información importante..."
+              placeholder={"Ej: 14 ago, 2pm — Quedan pocas cobijas, necesitamos más urgente. El punto cierra a las 6pm."}
               className="w-full bg-white text-gray-900 rounded-lg px-4 py-2.5 border border-gray-300 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder-gray-400 text-sm transition-colors resize-none shadow-sm"
             />
+            <p className="text-gray-400 text-xs mt-1 leading-relaxed">
+              Usa este campo como bitácora en tiempo real. Agrega tu actualización al inicio con la fecha y hora
+              para que todos vean qué está pasando ahora mismo en el punto.
+            </p>
           </div>
 
           {/* Fotos */}

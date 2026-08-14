@@ -96,8 +96,8 @@ export default function WelcomeScreen() {
                   },
                   {
                     n: '2',
-                    title: 'Actualiza el estado',
-                    desc: 'Cuando un punto ya está cubierto, repórtalo. Así dirigimos la ayuda a donde más se necesita. Si un sitio tiene información desactualizada, puedes ayudar a actualizarla.',
+                    title: 'Deja actualizaciones en vivo',
+                    desc: 'Cada punto tiene un campo de actualizaciones que funciona como una bitácora. Si estás en el lugar, edita el punto y escribe qué está pasando ahora: qué falta, qué llegó, si el horario cambió. Añade la hora para que todos sepan qué tan reciente es la información.',
                   },
                   {
                     n: '3',
@@ -185,14 +185,27 @@ export default function WelcomeScreen() {
                 ],
               },
               {
+                icon: '💬',
+                title: 'Dejar actualizaciones en vivo',
+                steps: [
+                  'Abre la tarjeta del punto y pulsa "Editar info".',
+                  'Ve al campo "Actualizaciones en vivo" (al final del formulario).',
+                  'Escribe qué está pasando ahora en el punto: qué falta, qué acaba de llegar, si el horario cambió, cuántas personas hay esperando.',
+                  'Incluye la fecha y hora al inicio de tu mensaje para que todos sepan qué tan reciente es.',
+                  'Ejemplo: "14 ago, 3pm — Quedan pocas cobijas. Necesitamos agua urgente. Abrimos hasta las 7pm."',
+                  'Guarda. El cambio aparece al instante para todos los que estén viendo el mapa.',
+                  'Si ya hay una nota anterior de otro usuario, puedes añadir la tuya encima para mantener un hilo cronológico.',
+                ],
+              },
+              {
                 icon: '✏️',
                 title: 'Editar información de un punto',
                 steps: [
                   'Abre la tarjeta del punto que quieres corregir.',
                   'Pulsa "Editar info" en la parte inferior.',
                   'Acepta la advertencia de responsabilidad.',
-                  'Modifica lo que necesites: datos, fotos, ítems, horario.',
-                  'Guarda los cambios. Se actualiza al instante.',
+                  'Modifica lo que necesites: nombre, dirección, ítems urgentes, horario o fotos.',
+                  'Guarda los cambios. Se actualiza al instante para todos.',
                 ],
               },
               {

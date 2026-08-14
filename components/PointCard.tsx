@@ -144,10 +144,10 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
           </div>
         )}
 
-        {/* Notas */}
+        {/* Notas / Actualizaciones en vivo */}
         {punto.notas && (
           <div>
-            <p className="text-xs font-medium text-gray-500 mb-1">Notas</p>
+            <p className="text-xs font-medium text-gray-500 mb-1">💬 Actualizaciones en vivo</p>
             <p className={`text-sm text-gray-600 break-words ${!expandedNotas && notasLong ? 'line-clamp-2' : ''}`}>
               {punto.notas}
             </p>
