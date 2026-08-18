@@ -8,9 +8,10 @@ interface FeedViewProps {
   onVerEnMapa: (punto: PuntoAyuda) => void
   onCambiarEstado: (id: string, nuevoEstado: 'necesita_apoyo' | 'cubierto') => void
   onEditPunto: (punto: PuntoAyuda) => void
+  onEliminarPunto: (id: string) => void
 }
 
-export default function FeedView({ puntos, onVerEnMapa, onCambiarEstado, onEditPunto }: FeedViewProps) {
+export default function FeedView({ puntos, onVerEnMapa, onCambiarEstado, onEditPunto, onEliminarPunto }: FeedViewProps) {
   if (puntos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-slate-400">
@@ -37,6 +38,7 @@ export default function FeedView({ puntos, onVerEnMapa, onCambiarEstado, onEditP
             onVerEnMapa={onVerEnMapa}
             onCambiarEstado={onCambiarEstado}
             onEditPunto={onEditPunto}
+            onEliminarPunto={onEliminarPunto}
           />
         ))}
       </div>

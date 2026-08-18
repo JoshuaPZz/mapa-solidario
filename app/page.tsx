@@ -135,6 +135,11 @@ export default function HomePage() {
     }
   }
 
+  const handleEliminarPunto = async (id: string) => {
+    const { error } = await supabase.from('puntos_ayuda').delete().eq('id', id)
+    if (error) console.error('Error eliminando punto:', error)
+  }
+
   const handleVerEnMapa = (punto: PuntoAyuda) => {
     setMapTarget(punto)
     setCurrentView('map')
@@ -211,6 +216,7 @@ export default function HomePage() {
               onVerEnMapa={handleVerEnMapa}
               onCambiarEstado={handleEstadoCambiado}
               onEditPunto={setEditingPoint}
+              onEliminarPunto={handleEliminarPunto}
             />
           </>
         ) : (
@@ -221,6 +227,7 @@ export default function HomePage() {
             onEstadoCambiado={handleEstadoCambiado}
             targetPunto={mapTarget}
             onEditPunto={setEditingPoint}
+            onEliminarPunto={handleEliminarPunto}
           />
         )}
       </div>

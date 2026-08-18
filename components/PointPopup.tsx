@@ -15,9 +15,10 @@ interface PointPopupProps {
   onClose: () => void
   onEstadoCambiado: (estado: 'necesita_apoyo' | 'cubierto') => void
   onEditPunto?: (punto: PuntoAyuda) => void
+  onEliminarPunto?: (id: string) => void
 }
 
-export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPunto }: PointPopupProps) {
+export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPunto, onEliminarPunto }: PointPopupProps) {
   const esNecesita = punto.estado === 'necesita_apoyo'
   const fotos = punto.fotos ?? []
   const [fotoIdx, setFotoIdx] = useState(0)
@@ -291,7 +292,7 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
         </div>
       )}
 
-      {/* Footer: cambiar estado */}
+      {/* Footer: cambiar estado + eliminar */}
       <div className="p-3 border-t border-gray-100 bg-gray-50 flex gap-2">
         <button
           id={`btn-estado-${punto.id}`}
@@ -314,6 +315,21 @@ export default function PointPopup({ punto, onClose, onEstadoCambiado, onEditPun
         >
           {esNecesita ? '✅ Reportar como cubierto' : '🔴 Reabrir punto'}
         </button>
+
+        {onEliminarPunto && (
+          <button
+            onClick={() => setConfirmConfig({
+              isOpen: true,
+              msg: 'ADVERTENCIA:\n\nVas a eliminar este punto permanentemente. Esta acción no se puede deshacer.\n\n¿Estás seguro?',
+              action: () => { onEliminarPunto(punto.id); onClose(); },
+              isDestructive: true,
+            })}
+            className="px-3 py-2.5 rounded-lg text-sm font-semibold border border-red-100 text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            aria-label="Eliminar punto"
+          >
+            🗑️
+          </button>
+        )}
       </div>
 
       <ConfirmModal

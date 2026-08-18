@@ -17,9 +17,10 @@ interface PointCardProps {
   onVerEnMapa?: (punto: PuntoAyuda) => void
   onCambiarEstado?: (id: string, nuevoEstado: 'necesita_apoyo' | 'cubierto') => void
   onEditPunto?: (punto: PuntoAyuda) => void
+  onEliminarPunto?: (id: string) => void
 }
 
-export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditPunto }: PointCardProps) {
+export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditPunto, onEliminarPunto }: PointCardProps) {
   const isCubierto = punto.estado === 'cubierto'
   const [confirmConfig, setConfirmConfig] = useState<{ isOpen: boolean, msg: string, action: (() => void) | null, isDestructive: boolean }>({
     isOpen: false,
@@ -264,6 +265,20 @@ export default function PointCard({ punto, onVerEnMapa, onCambiarEstado, onEditP
               className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm flex items-center justify-center gap-2"
             >
               <span>📍</span> Ver en mapa
+            </button>
+          )}
+
+          {onEliminarPunto && (
+            <button
+              onClick={() => setConfirmConfig({
+                isOpen: true,
+                msg: 'ADVERTENCIA:\n\nVas a eliminar este punto permanentemente. Esta acción no se puede deshacer y borrará toda su información y fotos.\n\n¿Estás seguro?',
+                action: () => onEliminarPunto(punto.id),
+                isDestructive: true,
+              })}
+              className="flex-1 sm:flex-none px-3 py-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 border border-transparent hover:border-red-100"
+            >
+              <span>🗑️</span> Eliminar
             </button>
           )}
         </div>

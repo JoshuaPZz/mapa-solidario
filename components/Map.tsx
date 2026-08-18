@@ -90,9 +90,10 @@ interface MapProps {
   onEstadoCambiado: (id: string, estado: 'necesita_apoyo' | 'cubierto') => void
   targetPunto?: PuntoAyuda | null
   onEditPunto: (punto: PuntoAyuda) => void
+  onEliminarPunto: (id: string) => void
 }
 
-export default function Map({ puntos, filtros, userLocation, onEstadoCambiado, targetPunto, onEditPunto }: MapProps) {
+export default function Map({ puntos, filtros, userLocation, onEstadoCambiado, targetPunto, onEditPunto, onEliminarPunto }: MapProps) {
   const [selectedPunto, setSelectedPunto] = useState<PuntoAyuda | null>(null)
 
   useEffect(() => {
@@ -176,6 +177,7 @@ export default function Map({ puntos, filtros, userLocation, onEstadoCambiado, t
               punto={selectedPunto}
               onClose={() => setSelectedPunto(null)}
               onEditPunto={onEditPunto}
+              onEliminarPunto={(id) => { onEliminarPunto(id); setSelectedPunto(null); }}
               onEstadoCambiado={(nuevoEstado) => {
                 onEstadoCambiado(selectedPunto.id, nuevoEstado)
                 setSelectedPunto((prev) =>
