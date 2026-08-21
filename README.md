@@ -1,155 +1,142 @@
-# 🇨🇴 Mapa Solidario Colombia
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Supabase-Realtime%20PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" />
+  <img src="https://img.shields.io/badge/Leaflet-OpenStreetMap-199900?style=for-the-badge&logo=leaflet&logoColor=white" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+</p>
 
-**Coordinación de ayuda humanitaria en tiempo real tras el terremoto del Chocó — Agosto 2026**
+# 🗺️ Mapa Solidario — Plataforma Comunitaria en Tiempo Real
 
-🌐 **Demo en vivo:** [mapa-solidario-kohl.vercel.app](https://mapa-solidario-kohl.vercel.app)
-
----
-
-## ¿Qué es?
-
-Mapa Solidario es una plataforma web colaborativa construida para responder a la emergencia generada por el terremoto de magnitud 7.4 que sacudió San José del Palmar, Chocó, el 10 de agosto de 2026.
-
-Su propósito es simple: **centralizar en un solo lugar todos los puntos donde se puede dar o recibir ayuda**, y mantener esa información actualizada en tiempo real por las mismas personas que están en el terreno.
-
-No requiere registro ni cuenta. Cualquier persona puede agregar un punto, actualizarlo, reportar su estado o subir fotos del lugar.
+> **Plataforma web geoespacial y colaborativa en tiempo real** para el registro, mapeo y coordinación de puntos de ayuda humanitaria, centros de acopio y voluntariado durante situaciones de emergencia.
 
 ---
 
-## Funcionalidades
+## 📌 Descripción General
 
-| Función | Descripción |
-|---|---|
-| **Agregar puntos** | Cualquier usuario puede publicar un punto de acopio, voluntariado, banco de alimentos o fundación con dirección, fotos y contacto |
-| **Actualizaciones en vivo** | Campo de bitácora por punto para que quienes están en el lugar dejen comentarios en tiempo real: qué falta, qué llegó, cambios de horario |
-| **Ítems urgentes / necesarios** | Cada punto puede listar lo que necesita con urgencia (agua, cobijas, medicamentos) diferenciado por nivel de prioridad |
-| **Mapa interactivo** | Vista de mapa con marcadores por estado (rojo = necesita apoyo, verde = cubierto). Popup con detalle completo al pulsar |
-| **Filtros avanzados** | Filtrar por ciudad, tipo de apoyo, radio de distancia desde la ubicación del usuario y estado del punto |
-| **Fotos del lugar** | Hasta 5 fotos por punto, comprimidas en cliente antes de subir. Carousel con lightbox en el detalle |
-| **Navegación a Google Maps** | Botón directo de "Cómo llegar" en cada punto, usando coordenadas exactas o dirección |
-| **Reportar como cubierto** | Sistema de reportes para marcar cuando un punto ya no necesita ayuda y redirigir el apoyo |
-| **Editar y eliminar** | Cualquier usuario puede corregir información desactualizada o eliminar un punto |
-| **Realtime** | Toda la información se sincroniza instantáneamente entre todos los usuarios conectados vía Supabase Realtime |
+**Mapa Solidario** es una solución de respuesta rápida diseñada para conectar a ciudadanos, comunidades y organizaciones humanitarias. Permite visualizar sobre un mapa interactivo las necesidades críticas en distintas zonas (alimentos, refugio, atención médica, donaciones, voluntariado) y actualizar en tiempo real el estado de cada punto de apoyo.
+
+### 🌟 Características Principales
+
+- 📍 **Mapa Interactivo con Geolocalización:** Renderizado de puntos de ayuda utilizando Leaflet y OpenStreetMap con marcadores dinámicos y clustering.
+- ⚡ **Actualizaciones en Tiempo Real (Realtime):** Integración nativa con **Supabase Realtime (WebSockets)** para reflejar nuevos puntos o cambios de estado instantáneamente sin recargar la página.
+- 🏷️ **Categorización Multifacética:** Clasificación de ayuda por etiquetas (`Alimentos`, `Medicamentos`, `Refugio`, `Ropa`, `Voluntariado`, `Apoyo Psicológico`).
+- 📊 **Gestión de Estados:** Indicador visual de estado (`necesita_apoyo` vs. `cubierto`) para evitar la saturación de recursos en centros de acopio.
+- 📱 **Diseño Mobile-First:** Interfaz optimizada con Tailwind CSS para acceso fluido desde smartphones en zonas de emergencia.
+- 🔒 **Persistencia Segura en PostgreSQL:** Modelo de datos optimizado con índices espaciales, triggers automáticos de auditoría y Row Level Security (RLS).
 
 ---
 
-## Arquitectura
+## 🏛️ Arquitectura del Sistema
 
-```
-┌─────────────────────────────────────────┐
-│              Next.js 15                 │
-│         (App Router, SSR/CSR)           │
-│                                         │
-│  app/page.tsx          ← estado global  │
-│  components/           ← UI components  │
-│    FilterBar           ← barra superior │
-│    FeedView            ← lista de cards │
-│    PointCard           ← tarjeta punto  │
-│    Map (Leaflet)       ← vista de mapa  │
-│    PointPopup          ← panel en mapa  │
-│    AddPointModal       ← crear / editar │
-│    WelcomeScreen       ← landing        │
-└───────────────┬─────────────────────────┘
-                │
-                │ supabase-js
-                ▼
-┌─────────────────────────────────────────┐
-│               Supabase                  │
-│                                         │
-│  PostgreSQL                             │
-│    puntos_ayuda        ← tabla principal│
-│                                         │
-│  Storage                                │
-│    fotos-de-los-lugares ← bucket público│
-│                                         │
-│  Realtime                               │
-│    postgres_changes    ← INSERT/UPDATE/ │
-│                          DELETE en vivo │
-└─────────────────────────────────────────┘
+```text
+┌──────────────────────────────────────────────────────────┐
+│                   Cliente Web (Browser)                  │
+│       Next.js 16 (App Router) + React 19 + Tailwind      │
+└──────────────┬────────────────────────────▲──────────────┘
+               │ HTTP / CRUD                │ WebSocket Realtime
+               ▼                            │ (Postgres Changes)
+┌───────────────────────────────────────────┴──────────────┐
+│                    Supabase Backend                      │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │             PostgreSQL 15 (puntos_ayuda)           │  │
+│  │   - Índices: ciudad, estado, lat/lng, creado_en    │  │
+│  │   - Row Level Security (RLS) habilitado            │  │
+│  │   - Triggers PL/pgSQL para updated_at automático   │  │
+│  └────────────────────────────────────────────────────┘  │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │        Supabase Realtime Publication Layer         │  │
+│  └────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────┘
 ```
 
-### Stack
+---
 
-- **Framework:** [Next.js 15](https://nextjs.org) con App Router
-- **UI:** [Tailwind CSS](https://tailwindcss.com)
-- **Mapa:** [Leaflet](https://leafletjs.com) + [react-leaflet](https://react-leaflet.js.org)
-- **Base de datos / Auth / Storage / Realtime:** [Supabase](https://supabase.com)
-- **Fechas:** [date-fns](https://date-fns.org)
-- **Deploy:** [Vercel](https://vercel.com)
+## 🛠️ Stack Tecnológico
 
-### Modelo de datos — `puntos_ayuda`
-
-| Campo | Tipo | Descripción |
+| Capa | Tecnología | Propósito |
 |---|---|---|
-| `id` | uuid | Identificador único |
-| `nombre` | text | Nombre del punto |
-| `direccion` | text | Dirección |
-| `ciudad` | text | Ciudad |
-| `pais` | text | País |
-| `lat` / `lng` | float | Coordenadas geográficas |
-| `tipo_apoyo` | text[] | Tipos: acopio, voluntariado, donaciones, etc. |
-| `items_urgentes` | text[] | Ítems que necesitan con urgencia |
-| `items_necesarios` | text[] | Ítems que necesitan (menor prioridad) |
-| `que_recibe` | text | Descripción de qué se necesita |
-| `horario` | text | Horario de atención |
-| `notas` | text | Bitácora de actualizaciones en vivo |
-| `contacto` | text | Teléfono(s) de contacto |
-| `instagram` | text | Perfil de Instagram |
-| `link_inscripcion` | text | Link de WhatsApp o inscripción |
-| `fotos` | text[] | Paths de fotos en Supabase Storage |
-| `estado` | text | `necesita_apoyo` o `cubierto` |
-| `reportes_cubierto` | int | Cantidad de reportes de estar cubierto |
-| `creado_en` | timestamptz | Fecha de creación |
-| `actualizado_en` | timestamptz | Última actualización |
+| **Framework** | Next.js 16 (App Router) | Renderizado del lado del servidor (SSR) y componentes cliente |
+| **Librería UI** | React 19 | Arquitectura modular de componentes interactivos |
+| **Lenguaje** | TypeScript 5 | Tipado estático de entidades de dominio y contratos de API |
+| **Mapas & GIS** | Leaflet / React-Leaflet | Visualización de mapas vectoriales y capas OpenStreetMap |
+| **Base de Datos** | Supabase (PostgreSQL 15) | Persistencia relacional, índices espaciales y suscripciones Realtime |
+| **Estilos** | Tailwind CSS | Sistema de diseño responsivo y optimizado con utilidades CSS |
+| **Utilidades** | date-fns | Formateo y manipulación localizada de marcas de tiempo |
 
 ---
 
-## Correr localmente
+## 🗄️ Modelo de Datos (PostgreSQL)
 
-```bash
-# Clonar el repositorio
-git clone <repo-url>
-cd mapa-solidario
-
-# Instalar dependencias
-npm install
-
-# Configurar variables de entorno
-cp .env.example .env.local
-# Llenar NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-# Correr en desarrollo
-npm run dev
-```
-
-Abre [http://localhost:3000](http://localhost:3000).
-
----
-
-## Variables de entorno
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://<tu-proyecto>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<tu-anon-key>
+```sql
+create table public.puntos_ayuda (
+  id               uuid primary key default gen_random_uuid(),
+  nombre           text not null,
+  direccion        text not null,
+  ciudad           text not null default 'Bogotá',
+  pais             text not null default 'Colombia',
+  lat              double precision,
+  lng              double precision,
+  tipo_apoyo       text[] not null default '{}',
+  que_recibe       text,
+  estado           text not null default 'necesita_apoyo' check (estado in ('necesita_apoyo', 'cubierto')),
+  contacto         text,
+  link_inscripcion text,
+  horario          text,
+  notas            text,
+  instagram        text,
+  creado_en        timestamptz not null default now(),
+  actualizado_en   timestamptz not null default now()
+);
 ```
 
 ---
 
-## Decisiones de diseño
+## 🚀 Instalación y Puesta en Marcha
 
-- **Sin autenticación:** La barrera de registro elimina usuarios en emergencias. Todo es anónimo e inmediato.
-- **Compresión en cliente:** Las fotos se comprimen a máx. 1200px / JPEG 0.82 antes de subir, sin costo de servidor.
-- **Realtime sobre polling:** Supabase Realtime con `postgres_changes` garantiza sincronización instantánea sin consultas periódicas.
-- **Función RPC para reportes:** Los reportes de "cubierto" van por una función `reportar_punto_cubierto` en Supabase para evitar sabotaje directo por escritura.
-- **Sin framework de estado externo:** React `useState` + `useCallback` es suficiente para la escala actual. Reducir dependencias reduce superficie de fallo en una emergencia.
+### Prerrequisitos
+- **Node.js** 18.x o superior
+- **npm**, **pnpm** o **yarn**
+- Cuenta en **Supabase**
+
+### Pasos
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/JoshuaPZz/mapa-solidario.git
+   cd mapa-solidario
+   ```
+
+2. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
+
+3. **Configurar variables de entorno:**
+   Copia el archivo `.env.local.example` a `.env.local`:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+   Configura tus credenciales de Supabase:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key-publica
+   ```
+
+4. **Ejecutar schema en Supabase:**
+   En el SQL Editor de tu dashboard de Supabase, ejecuta los scripts:
+   - `supabase/schema.sql` (creación de tabla, índices, RLS y realtime)
+   - `supabase/seed.sql` (datos iniciales de prueba)
+
+5. **Iniciar en entorno de desarrollo:**
+   ```bash
+   npm run dev
+   ```
+   Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
 ---
 
-## Equipo
+## 📄 Licencia
 
-Proyecto voluntario, sin fines de lucro, construido para ayudar en la emergencia del Chocó.
-
-- **Joshua Prieto** — joshuaprieto8@gmail.com
-- **Joan Orduz** — joaneorduzzz@gmail.com
-
-Sugerencias, errores o si quieres contribuir: escríbenos directamente o abre un issue.
+Este proyecto fue desarrollado como una iniciativa de código abierto para asistencia comunitaria y solidaria.
